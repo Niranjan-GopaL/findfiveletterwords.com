@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Privacy Policy — Find Five Letter Words';
+const description =
+  'Privacy policy for findfiveletterwords.com: what data is collected, how cookies and advertising work, and how to contact us.';
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="mx-auto max-w-3xl pt-16">
+    <p class="font-monoui text-[11px] uppercase tracking-caption text-muted">
+      Effective date: 10 June 2026
+    </p>
+    <h1 class="mt-6 font-display text-4xl uppercase tracking-display text-ink text-balance sm:text-5xl">
+      Privacy Policy
+    </h1>
+
+    <p class="mt-8 text-lg text-body-strong">
+      findfiveletterwords.com ("we", "this site") is a static website. The word finder runs
+      entirely in your browser — the letters you type are never sent to our servers.
+    </p>
+
+    <h2 class="mt-12 font-display text-2xl uppercase tracking-display text-ink">
+      Information we collect
+    </h2>
+    <p class="mt-4">
+      We do not require accounts and do not collect names, email addresses, or other personal
+      information, except when you choose to email us. Standard technical data (such as IP address,
+      browser type, and pages visited) may be processed by our hosting provider to deliver the site
+      and to protect it from abuse.
+    </p>
+
+    <h2 class="mt-12 font-display text-2xl uppercase tracking-display text-ink">
+      Advertising and cookies
+    </h2>
+    <p class="mt-4">
+      This site is supported by advertising served by Google AdSense. Third-party vendors,
+      including Google, use cookies to serve ads based on your prior visits to this and other
+      websites. Google's use of advertising cookies enables it and its partners to serve ads based
+      on your visits to this site and/or other sites on the internet.
+    </p>
+    <p class="mt-4">
+      You may opt out of personalised advertising by visiting
+      <a href="https://www.google.com/settings/ads" class="text-link underline underline-offset-4" rel="nofollow noopener">Google Ads Settings</a>,
+      or opt out of some third-party vendors' cookies at
+      <a href="https://www.aboutads.info" class="text-link underline underline-offset-4" rel="nofollow noopener">aboutads.info</a>.
+      Visitors in the EEA, UK, and Switzerland are shown a consent message before any advertising
+      cookies are set.
+    </p>
+
+    <h2 class="mt-12 font-display text-2xl uppercase tracking-display text-ink">Analytics</h2>
+    <p class="mt-4">
+      We may use privacy-respecting, aggregate analytics to understand which pages are useful. We
+      do not sell personal data.
+    </p>
+
+    <h2 class="mt-12 font-display text-2xl uppercase tracking-display text-ink">Contact</h2>
+    <p class="mt-4">
+      Questions about this policy? Reach us via the
+      <a href="/contact/" class="text-link underline underline-offset-4">contact page</a>.
+    </p>
+  </section>
+</BaseLayout>

@@ -1,0 +1,140 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Render WebSite JSON-LD (home page only). */
+  home?: boolean;
+}
+
+const { title, description, home = false } = Astro.props;
+
+const path = Astro.url.pathname;
+const canonical = new URL(
+  path.endsWith('/') || path.includes('.') ? path : `${path}/`,
+  Astro.site,
+).href;
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Find Five Letter Words',
+  url: Astro.site?.href,
+  description:
+    'Free word finder and word lists for Wordle, Scrabble, and Words With Friends — sorted by frequency so common words come first.',
+};
+
+const navLinks = [
+  { href: '/', label: 'Word Finder' },
+  { href: '/5-letter-words/', label: '5-Letter Words' },
+  { href: '/4-letter-words/', label: '4-Letter' },
+  { href: '/6-letter-words/', label: '6-Letter' },
+  { href: '/7-letter-words/', label: '7-Letter' },
+];
+
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#000000" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Find Five Letter Words" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    {home && <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />}
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:font-monoui focus:text-xs focus:uppercase focus:tracking-caption focus:text-canvas"
+    >
+      Skip to content
+    </a>
+
+    <header class="border-b border-hairline">
+      <div class="mx-auto max-w-7xl px-4">
+        <div class="flex h-14 items-center justify-center">
+          <a
+            href="/"
+            class="font-display text-[11px] uppercase tracking-[0.3em] text-ink transition-colors hover:text-body-strong sm:text-sm sm:tracking-wordmark"
+            translate="no"
+          >
+            Find&nbsp;Five&nbsp;Letter&nbsp;Words
+          </a>
+        </div>
+        <nav aria-label="Primary" class="-mx-4 overflow-x-auto px-4">
+          <ul
+            class="flex justify-start gap-6 whitespace-nowrap pb-3 font-monoui text-xs uppercase tracking-caption sm:justify-center"
+          >
+            {
+              navLinks.map((l) => (
+                <li>
+                  <a class="text-muted transition-colors hover:text-ink" href={l.href}>
+                    {l.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="mx-auto max-w-7xl px-4">
+      <slot />
+    </main>
+
+    <footer class="mt-24 border-t border-hairline">
+      <div class="mx-auto max-w-7xl px-4 py-16">
+        <div class="grid gap-10 sm:grid-cols-3">
+          <div>
+            <h2 class="font-monoui text-[11px] uppercase tracking-caption text-muted">Word lists</h2>
+            <ul class="mt-4 space-y-2 text-sm">
+              <li><a class="text-muted transition-colors hover:text-ink" href="/4-letter-words/">4-letter words</a></li>
+              <li><a class="text-muted transition-colors hover:text-ink" href="/5-letter-words/">5-letter words</a></li>
+              <li><a class="text-muted transition-colors hover:text-ink" href="/6-letter-words/">6-letter words</a></li>
+              <li><a class="text-muted transition-colors hover:text-ink" href="/7-letter-words/">7-letter words</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="font-monoui text-[11px] uppercase tracking-caption text-muted">Tools</h2>
+            <ul class="mt-4 space-y-2 text-sm">
+              <li><a class="text-muted transition-colors hover:text-ink" href="/">Word finder &amp; solver</a></li>
+              <li><a class="text-muted transition-colors hover:text-ink" href="/5-letter-words/with-no-repeated-letters/">Best starter words</a></li>
+              <li><a class="text-muted transition-colors hover:text-ink" href="/5-letter-words/without-vowels/">Words without vowels</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="font-monoui text-[11px] uppercase tracking-caption text-muted">Site</h2>
+            <ul class="mt-4 space-y-2 text-sm">
+              <li><a class="text-muted transition-colors hover:text-ink" href="/about/">About</a></li>
+              <li><a class="text-muted transition-colors hover:text-ink" href="/privacy-policy/">Privacy policy</a></li>
+              <li><a class="text-muted transition-colors hover:text-ink" href="/contact/">Contact</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-16 text-center">
+          <p class="font-display text-xs uppercase tracking-wordmark text-ink" translate="no">
+            Find&nbsp;Five&nbsp;Letter&nbsp;Words
+          </p>
+          <p class="mt-4 text-sm text-muted-soft">
+            © {year} findfiveletterwords.com · Word lists derived from the public-domain ENABLE
+            dictionary. Not affiliated with the New York Times or Wordle.
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

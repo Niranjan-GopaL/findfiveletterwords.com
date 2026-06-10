@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Page Not Found — Find Five Letter Words';
+const description = 'That page does not exist. Try the word finder or browse the word lists.';
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="mx-auto max-w-3xl pt-24 text-center">
+    <p class="font-monoui text-[11px] uppercase tracking-caption text-muted">Error 404</p>
+    <h1 class="mt-6 font-display text-5xl uppercase tracking-display text-ink text-balance">
+      Page not found
+    </h1>
+    <p class="mx-auto mt-6 max-w-xl text-lg text-body-strong">
+      Five letters, starts with a typo. The page you wanted is not here — but every word list still
+      is.
+    </p>
+    <div class="mt-10 flex flex-wrap justify-center gap-3">
+      <a
+        href="/"
+        class="rounded-full border border-ink px-8 py-3 font-monoui text-sm uppercase tracking-[0.18em] text-ink transition-colors hover:bg-card"
+      >
+        Open the word finder
+      </a>
+      <a
+        href="/5-letter-words/"
+        class="rounded-full border border-hairline-strong px-8 py-3 font-monoui text-sm uppercase tracking-[0.18em] text-body transition-colors hover:border-ink hover:text-ink"
+      >
+        5-letter word lists
+      </a>
+    </div>
+  </section>
+</BaseLayout>

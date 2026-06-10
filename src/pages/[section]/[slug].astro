@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import WordGrid from '../../components/WordGrid.astro';
+import FaqBlock from '../../components/FaqBlock.astro';
+import LinkGroups from '../../components/LinkGroups.astro';
+import TipBox from '../../components/TipBox.astro';
+import { allPages, type PageDef } from '../../lib/pages';
+
+export function getStaticPaths() {
+  return allPages().map((page) => ({
+    params: { section: page.section, slug: page.slug },
+    props: { page },
+  }));
+}
+
+interface Props {
+  page: PageDef;
+}
+
+const { page } = Astro.props;
+
+const sectionLabel = `${page.section.split('-')[0]}-Letter Words`;
+const crumbs = [
+  { href: '/', label: 'Home' },
+  { href: `/${page.section}/`, label: sectionLabel },
+  { href: `/${page.section}/${page.slug}/`, label: page.h1 },
+];
+---
+
+<BaseLayout title={page.title} description={page.description}>
+  <Breadcrumbs crumbs={crumbs} />
+
+  <h1
+    class="mt-8 font-display text-4xl uppercase tracking-display text-ink text-balance sm:text-5xl"
+  >
+    {page.h1}
+  </h1>
+
+  {
+    page.intro.map((para, i) => (
+      <p class={i === 0 ? 'mt-6 max-w-3xl text-lg text-body-strong' : 'mt-4 max-w-3xl'}>{para}</p>
+    ))
+  }
+
+  <WordGrid words={page.words} />
+
+  <TipBox tip={page.tip} />
+
+  <FaqBlock faqs={page.faqs} />
+
+  <LinkGroups groups={page.linkGroups} />
+</BaseLayout>

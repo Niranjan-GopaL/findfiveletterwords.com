@@ -1,0 +1,36 @@
+---
+import type { Faq } from '../lib/pages';
+
+interface Props {
+  faqs: Faq[];
+}
+
+const { faqs } = Astro.props;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<section class="mt-16">
+  <h2 class="font-display text-2xl uppercase tracking-display text-ink text-balance">
+    Frequently asked questions
+  </h2>
+  <div class="mt-2">
+    {
+      faqs.map((f) => (
+        <div class="mt-6 border-t border-hairline pt-6">
+          <h3 class="font-display text-xl tracking-[0.05em] text-ink text-balance">{f.q}</h3>
+          <p class="mt-3 max-w-3xl">{f.a}</p>
+        </div>
+      ))
+    }
+  </div>
+</section>
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

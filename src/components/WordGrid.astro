@@ -1,0 +1,53 @@
+---
+interface Props {
+  words: string[];
+}
+
+const { words } = Astro.props;
+
+const COMMON = 20;
+const CHUNK = 240;
+
+const showCommonBand = words.length > COMMON * 2;
+const common = showCommonBand ? words.slice(0, COMMON) : [];
+const rest = showCommonBand ? words.slice(COMMON) : words;
+
+const chunks: string[][] = [];
+for (let i = 0; i < rest.length; i += CHUNK) chunks.push(rest.slice(i, i + CHUNK));
+
+const total = words.length.toLocaleString('en-US');
+---
+
+{
+  showCommonBand && (
+    <section class="mt-10">
+      <h2 class="font-monoui text-[11px] uppercase tracking-caption text-muted">
+        Most common
+      </h2>
+      <ul class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
+        {common.map((w) => (
+          <li class="border border-hairline-strong px-1 py-2 text-center font-monoui text-sm uppercase tracking-[0.08em] text-ink">
+            {w}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<section class="mt-10">
+  <h2 class="font-monoui text-[11px] uppercase tracking-caption tabular-nums text-muted">
+    {showCommonBand ? `All ${total} words — most common first` : `${total} words — most common first`}
+  </h2>
+  {
+    chunks.map((chunk) => (
+      <ul class="cv-auto mt-4 grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
+        {chunk.map((w) => (
+          <li class="border border-hairline px-1 py-2 text-center font-monoui text-sm uppercase tracking-[0.08em] text-body">
+            {w}
+          </li>
+        ))}
+      </ul>
+    ))
+  }
+</section>

@@ -1,17 +1,372 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqBlock from '../components/FaqBlock.astro';
+import LinkGroups from '../components/LinkGroups.astro';
+import { allPagesFor, type LinkGroup } from '../lib/pages';
+import { ALPHABET, LENGTHS, WORD_LISTS, formatCount, sectionFor } from '../lib/words';
 
+const totalWords = formatCount(LENGTHS.reduce((sum, l) => sum + WORD_LISTS[l].length, 0));
+const count5 = formatCount(WORD_LISTS[5].length);
+
+const title = 'Find Five Letter Words — Free Word Finder for Wordle & Scrabble';
+const description = `Free word finder for Wordle, Scrabble & Words With Friends. Filter ${totalWords} words by known letters and position — sorted by frequency, common words first.`;
+
+const specialSlugs = [
+  'with-no-repeated-letters',
+  'without-vowels',
+  'with-double-letters',
+  'with-four-vowels',
+  'with-q-but-no-u',
+];
+
+const browseGroups: LinkGroup[] = [
+  {
+    heading: 'Word lists by length',
+    links: LENGTHS.map((l) => ({
+      href: `/${sectionFor(l)}/`,
+      label: `${l}-Letter Word Lists (${formatCount(WORD_LISTS[l].length)} words)`,
+    })),
+  },
+  {
+    heading: '5-letter words starting with…',
+    links: ALPHABET.map((c) => ({
+      href: `/5-letter-words/starting-with-${c}/`,
+      label: c.toUpperCase(),
+    })),
+  },
+  {
+    heading: 'Special 5-letter lists',
+    links: allPagesFor(5)
+      .filter((p) => specialSlugs.includes(p.slug))
+      .map((p) => ({ href: `/${p.section}/${p.slug}/`, label: p.h1 })),
+  },
+];
+
+const faqs = [
+  {
+    q: 'What dictionary does Find Five Letter Words use?',
+    a: `Every list is built from ENABLE, the public-domain tournament word list that games like Words With Friends are based on — ${totalWords} words of 4 to 7 letters. Words are ranked by frequency in a trillion-word English corpus, so common words always appear first.`,
+  },
+  {
+    q: 'How do I use the finder for Wordle?',
+    a: 'Type your green letters into the matching position boxes, put yellow letters in the "contains" field, and put gray letters in the "exclude" field. The list updates as you type, with the most likely answers at the top.',
+  },
+  {
+    q: 'Is the word finder free?',
+    a: 'Yes — completely free, with no sign-up and no download. The site is supported by a small amount of advertising.',
+  },
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title={title} description={description} home>
+  <!-- Hero -->
+  <section class="pt-16 text-center sm:pt-24">
+    <p class="font-monoui text-[11px] uppercase tracking-caption text-muted">
+      Wordle · Scrabble · Words With Friends
+    </p>
+    <h1
+      class="mx-auto mt-6 max-w-4xl font-display text-5xl uppercase tracking-display text-ink text-balance sm:text-6xl"
+    >
+      Find Five Letter Words
+    </h1>
+    <p class="mx-auto mt-6 max-w-2xl text-lg text-body-strong">
+      A free word finder with every 4-to-7-letter word in the tournament dictionary — sorted by how
+      common each word is, so the answer you need sits near the top.
+    </p>
+  </section>
+
+  <!-- Finder tool -->
+  <section class="mx-auto mt-14 max-w-4xl" aria-labelledby="finder-heading">
+    <h2 id="finder-heading" class="sr-only">Word finder</h2>
+    <form id="finder" class="border border-hairline bg-soft p-5 sm:p-8" novalidate>
+      <fieldset>
+        <legend class="font-monoui text-[11px] uppercase tracking-caption text-muted">
+          Word length
+        </legend>
+        <div class="mt-3 flex flex-wrap gap-2">
+          {
+            LENGTHS.map((l) => (
+              <label>
+                <input
+                  type="radio"
+                  name="len"
+                  value={l}
+                  checked={l === 5}
+                  class="peer sr-only"
+                />
+                <span class="block cursor-pointer border border-hairline px-5 py-2 font-monoui text-sm tracking-[0.15em] text-muted transition-colors peer-checked:border-ink peer-checked:text-ink peer-focus-visible:outline peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink hover:text-body">
+                  {l}
+                </span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="mt-8">
+        <legend class="font-monoui text-[11px] uppercase tracking-caption text-muted">
+          Known letters in position — green
+        </legend>
+        <div id="positions" class="mt-3 flex flex-wrap gap-2">
+          {
+            [1, 2, 3, 4, 5, 6, 7].map((p) => (
+              <input
+                id={`pos-${p}`}
+                name={`pos-${p}`}
+                type="text"
+                maxlength="1"
+                aria-label={`Letter in position ${p}`}
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                class:list={[
+                  'h-12 w-12 border border-hairline-strong bg-transparent text-center font-monoui text-lg uppercase text-ink transition-colors placeholder:text-muted-soft focus:border-ink focus:outline-none',
+                  p > 5 && 'hidden',
+                ]}
+                disabled={p > 5}
+              />
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <div class="mt-8 grid gap-8 sm:grid-cols-2">
+        <div>
+          <label
+            for="contains"
+            class="font-monoui text-[11px] uppercase tracking-caption text-muted"
+          >
+            Contains these letters — yellow
+          </label>
+          <input
+            id="contains"
+            name="contains"
+            type="text"
+            placeholder="e.g. RT…"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            class="mt-2 w-full border-0 border-b border-hairline-strong bg-transparent px-0 py-2 font-monoui text-base uppercase tracking-[0.15em] text-ink transition-colors placeholder:normal-case placeholder:text-muted-soft focus:border-ink focus:outline-none"
+          />
+        </div>
+        <div>
+          <label
+            for="excludes"
+            class="font-monoui text-[11px] uppercase tracking-caption text-muted"
+          >
+            Exclude these letters — gray
+          </label>
+          <input
+            id="excludes"
+            name="excludes"
+            type="text"
+            placeholder="e.g. SLON…"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            class="mt-2 w-full border-0 border-b border-hairline-strong bg-transparent px-0 py-2 font-monoui text-base uppercase tracking-[0.15em] text-ink transition-colors placeholder:normal-case placeholder:text-muted-soft focus:border-ink focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <div class="mt-8 flex flex-wrap items-center gap-5">
+        <button
+          type="reset"
+          class="rounded-full border border-ink px-8 py-3 font-monoui text-sm uppercase tracking-[0.18em] text-ink transition-colors hover:bg-card"
+        >
+          Reset
+        </button>
+        <p id="count" aria-live="polite" class="font-monoui text-xs uppercase tracking-caption tabular-nums text-muted">
+          Loading word list…
+        </p>
+      </div>
+
+      <noscript>
+        <p class="mt-6 text-body-strong">
+          The interactive finder needs JavaScript. No problem — browse the
+          <a href="/5-letter-words/" class="text-link underline underline-offset-4">full 5-letter word lists</a>
+          instead.
+        </p>
+      </noscript>
+    </form>
+
+    <ul
+      id="results"
+      class="mt-6 grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2"
+      aria-label="Matching words, most common first"
+    >
+    </ul>
+    <div class="mt-6 text-center">
+      <button
+        id="more"
+        type="button"
+        hidden
+        class="rounded-full border border-ink px-6 py-2.5 font-monoui text-xs uppercase tracking-[0.18em] text-ink transition-colors hover:bg-card"
+      >
+        Show more words
+      </button>
+    </div>
+  </section>
+
+  <!-- Browse -->
+  <section class="mt-24 border-t border-hairline pt-4">
+    <LinkGroups groups={browseGroups} />
+  </section>
+
+  <!-- Editorial -->
+  <section class="mt-24">
+    <h2 class="font-display text-2xl uppercase tracking-display text-ink text-balance sm:text-3xl">
+      Why frequency order beats alphabetical
+    </h2>
+    <p class="mt-6 max-w-3xl text-body-strong">
+      Most word lists are alphabetical, which hides the answer you actually need somewhere in the
+      middle of the Cs. Every list on this site is ranked by how often each word appears in a
+      trillion-word corpus of written English. Puzzle answers are almost always everyday words — so
+      they surface in the first rows, not after three screens of obscure tournament plays.
+    </p>
+    <p class="mt-4 max-w-3xl">
+      When you do want the obscure stuff — QOPH, CRWTH, ADIEU and friends — scroll to the deep end
+      of any list, or jump straight to the special lists: {count5} five-letter words sliced by
+      vowels, repeats, doubles, and more.
+    </p>
+  </section>
+
+  <FaqBlock faqs={faqs} />
+</BaseLayout>
+
+<script>
+  const MAX_INITIAL = 120;
+  const PAGE_SIZE = 480;
+
+  const form = document.getElementById('finder') as HTMLFormElement;
+  const results = document.getElementById('results') as HTMLUListElement;
+  const countEl = document.getElementById('count') as HTMLParagraphElement;
+  const moreBtn = document.getElementById('more') as HTMLButtonElement;
+  const posInputs = [1, 2, 3, 4, 5, 6, 7].map(
+    (p) => document.getElementById(`pos-${p}`) as HTMLInputElement,
+  );
+  const containsEl = document.getElementById('contains') as HTMLInputElement;
+  const excludesEl = document.getElementById('excludes') as HTMLInputElement;
+
+  const cache: Record<number, string[]> = {};
+  let matches: string[] = [];
+  let rendered = 0;
+  let timer: number | undefined;
+
+  function currentLen(): number {
+    const checked = form.querySelector<HTMLInputElement>('input[name="len"]:checked');
+    return checked ? Number(checked.value) : 5;
+  }
+
+  async function loadWords(len: number): Promise<string[]> {
+    if (!cache[len]) {
+      const res = await fetch(`/data/words-${len}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      cache[len] = (await res.json()) as string[];
+    }
+    return cache[len];
+  }
+
+  function letters(value: string): string[] {
+    return [...new Set(value.toLowerCase().replace(/[^a-z]/g, ''))];
+  }
+
+  function applyFilter(words: string[]): string[] {
+    const len = currentLen();
+    const greens = posInputs
+      .slice(0, len)
+      .map((el) => el.value.toLowerCase().replace(/[^a-z]/g, ''));
+    const contains = letters(containsEl.value);
+    // A "gray" letter that is also green/yellow means "no more copies" —
+    // dropping it entirely is the forgiving interpretation.
+    const keep = new Set([...greens.filter(Boolean), ...contains]);
+    const excludes = letters(excludesEl.value).filter((c) => !keep.has(c));
+
+    return words.filter((w) => {
+      for (let i = 0; i < len; i++) if (greens[i] && w[i] !== greens[i]) return false;
+      for (const c of contains) if (!w.includes(c)) return false;
+      for (const c of excludes) if (w.includes(c)) return false;
+      return true;
+    });
+  }
+
+  function renderTiles(upTo: number) {
+    const frag = document.createDocumentFragment();
+    for (let i = rendered; i < Math.min(upTo, matches.length); i++) {
+      const li = document.createElement('li');
+      li.className =
+        'border border-hairline px-1 py-2 text-center font-monoui text-sm uppercase tracking-[0.08em] text-body';
+      li.textContent = matches[i];
+      frag.appendChild(li);
+    }
+    results.appendChild(frag);
+    rendered = Math.min(upTo, matches.length);
+    moreBtn.hidden = rendered >= matches.length;
+    const left = matches.length - rendered;
+    if (!moreBtn.hidden)
+      moreBtn.textContent = `Show more words (${left.toLocaleString('en-US')} left)`;
+  }
+
+  async function refresh() {
+    try {
+      const words = await loadWords(currentLen());
+      matches = applyFilter(words);
+      results.replaceChildren();
+      rendered = 0;
+      countEl.textContent = `${matches.length.toLocaleString('en-US')} words match — most common first`;
+      renderTiles(MAX_INITIAL);
+    } catch {
+      countEl.textContent = 'Could not load the word list — check your connection and refresh.';
+    }
+  }
+
+  function scheduleRefresh() {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(refresh, 60);
+  }
+
+  function syncPositions() {
+    const len = currentLen();
+    posInputs.forEach((el, i) => {
+      const active = i < len;
+      el.disabled = !active;
+      el.classList.toggle('hidden', !active);
+      if (!active) el.value = '';
+    });
+  }
+
+  // Auto-advance between position boxes.
+  posInputs.forEach((el, i) => {
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/[^a-zA-Z]/g, '');
+      if (el.value && i + 1 < currentLen()) posInputs[i + 1].focus();
+      scheduleRefresh();
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !el.value && i > 0) posInputs[i - 1].focus();
+    });
+  });
+
+  [containsEl, excludesEl].forEach((el) => el.addEventListener('input', scheduleRefresh));
+
+  form.addEventListener('change', (e) => {
+    if ((e.target as HTMLElement).matches('input[name="len"]')) {
+      syncPositions();
+      refresh();
+    }
+  });
+
+  form.addEventListener('reset', () => {
+    window.setTimeout(() => {
+      syncPositions();
+      refresh();
+    }, 0);
+  });
+
+  form.addEventListener('submit', (e) => e.preventDefault());
+
+  moreBtn.addEventListener('click', () => renderTiles(rendered + PAGE_SIZE));
+
+  syncPositions();
+  refresh();
+</script>

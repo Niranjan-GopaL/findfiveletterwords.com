@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import LinkGroups from '../../components/LinkGroups.astro';
+import { hubFor, type HubData } from '../../lib/pages';
+import { LENGTHS, LENGTH_NAMES, formatCount, sectionFor } from '../../lib/words';
+
+export function getStaticPaths() {
+  return LENGTHS.map((len) => ({
+    params: { section: sectionFor(len) },
+    props: { hub: hubFor(len) },
+  }));
+}
+
+interface Props {
+  hub: HubData;
+}
+
+const { hub } = Astro.props;
+const name = LENGTH_NAMES[hub.len];
+const count = formatCount(hub.wordCount);
+
+const crumbs = [
+  { href: '/', label: 'Home' },
+  { href: `/${hub.section}/`, label: `${hub.len}-Letter Words` },
+];
+---
+
+<BaseLayout title={hub.title} description={hub.description}>
+  <Breadcrumbs crumbs={crumbs} />
+
+  <h1
+    class="mt-8 font-display text-4xl uppercase tracking-display text-ink text-balance sm:text-5xl"
+  >
+    {hub.h1}
+  </h1>
+
+  <p class="mt-6 max-w-3xl text-lg text-body-strong">
+    Every {name}-letter word list on this site, organised so you can jump straight to the pattern
+    you need. All {count}
+    {name}-letter words come from the public-domain tournament dictionary, and every list is sorted
+    with the most common words first.
+  </p>
+  <p class="mt-4 max-w-3xl">
+    Already know some letters? The <a
+      href="/"
+      class="text-link underline underline-offset-4 transition-colors hover:text-ink">word finder</a
+    > filters all {count} words by position, included letters, and excluded letters in an instant —
+    it works like a cheat sheet for Wordle, Scrabble, and Words With Friends.
+  </p>
+
+  <LinkGroups groups={hub.groups} />
+
+  <section class="mt-16 border-t border-hairline pt-10">
+    <h2 class="font-display text-2xl uppercase tracking-display text-ink">
+      Other word lengths
+    </h2>
+    <ul class="mt-6 flex flex-wrap gap-2">
+      {
+        LENGTHS.filter((l) => l !== hub.len).map((l) => (
+          <li>
+            <a
+              href={`/${sectionFor(l)}/`}
+              class="block border border-hairline px-3 py-2 font-monoui text-xs uppercase tracking-[0.12em] text-body transition-colors hover:border-ink hover:text-ink"
+            >
+              {l}-Letter Word Lists
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>

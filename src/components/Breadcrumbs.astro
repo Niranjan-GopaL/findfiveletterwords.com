@@ -1,0 +1,48 @@
+---
+interface Crumb {
+  href: string;
+  label: string;
+}
+
+interface Props {
+  /** Trail including the current page as the last item. */
+  crumbs: Crumb[];
+}
+
+const { crumbs } = Astro.props;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.label,
+    item: new URL(c.href, Astro.site).href,
+  })),
+};
+---
+
+<nav aria-label="Breadcrumb" class="pt-8">
+  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 font-monoui text-[11px] uppercase tracking-caption">
+    {
+      crumbs.map((c, i) =>
+        i === crumbs.length - 1 ? (
+          <li aria-current="page" class="text-muted-soft">
+            {c.label}
+          </li>
+        ) : (
+          <li class="flex items-center gap-2">
+            <a class="text-muted transition-colors hover:text-ink" href={c.href}>
+              {c.label}
+            </a>
+            <span aria-hidden="true" class="text-muted-soft">
+              /
+            </span>
+          </li>
+        ),
+      )
+    }
+  </ol>
+</nav>
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

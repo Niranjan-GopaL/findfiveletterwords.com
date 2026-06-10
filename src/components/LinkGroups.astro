@@ -1,0 +1,31 @@
+---
+import type { LinkGroup } from '../lib/pages';
+
+interface Props {
+  groups: LinkGroup[];
+}
+
+const { groups } = Astro.props;
+---
+
+{
+  groups.map((g) => (
+    <section class="mt-16">
+      <h2 class="font-display text-2xl uppercase tracking-display text-ink text-balance">
+        {g.heading}
+      </h2>
+      <ul class="mt-6 flex flex-wrap gap-2">
+        {g.links.map((l) => (
+          <li>
+            <a
+              href={l.href}
+              class="block border border-hairline px-3 py-2 font-monoui text-xs uppercase tracking-[0.12em] text-body transition-colors hover:border-ink hover:text-ink"
+            >
+              {l.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))
+}
