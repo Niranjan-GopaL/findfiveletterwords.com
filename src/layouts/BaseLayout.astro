@@ -35,7 +35,11 @@ const navLinks = [
 ];
 
 const totalWords = formatCount(LENGTHS.reduce((sum, l) => sum + WORD_LISTS[l].length, 0));
+// Static ticker shows a hardcoded variant per viewport (no mid-text ellipsis);
+// the optional scrolling mode always uses the full text.
 const ticker = `${totalWords} words · 2 to 20 letters · sorted by frequency · Scrabble points on every word · free forever`;
+const tickerMid = `${totalWords} words · 2 to 20 letters · sorted by frequency`;
+const tickerShort = `${totalWords} words · 2 to 20 letters`;
 
 const fontSizes = [
   { value: '', label: 'Default' },
@@ -199,8 +203,10 @@ const year = new Date().getFullYear();
          scrolling-marquee mode on for people who like it. -->
     <div class="relative flex h-9 items-center overflow-hidden bg-navy">
       <p class="marquee-track font-monoui text-xs uppercase tracking-eyebrow text-white" aria-hidden="true">
-        <span>{ticker}</span>
-        <span>{ticker}</span>
+        <span class="t-full">{ticker}</span>
+        <span class="t-mid">{tickerMid}</span>
+        <span class="t-short">{tickerShort}</span>
+        <span class="t-dup">{ticker}</span>
       </p>
       <button
         id="marquee-toggle"

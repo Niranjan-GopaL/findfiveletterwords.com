@@ -263,7 +263,7 @@ const faqs = [
 
     <ul
       id="results"
-      class="mt-6 grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2"
+      class="mt-6 grid grid-cols-[repeat(auto-fill,minmax(var(--tile-min,6.5rem),1fr))] gap-2"
       aria-label="Matching words"
     >
     </ul>
@@ -474,7 +474,10 @@ const faqs = [
 
   async function refresh() {
     try {
-      const dict = await loadDict(currentLen());
+      const len = currentLen();
+      // Widen the tile columns for longer words so they never overflow.
+      results.style.setProperty('--tile-min', `${Math.max(6.5, len * 0.58 + 2.9).toFixed(2)}rem`);
+      const dict = await loadDict(len);
       matches = applyFilter(dict);
       results.replaceChildren();
       rendered = 0;

@@ -147,6 +147,8 @@
 
   & > span:first-child {
     font-weight: 480;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
   & > span:last-child:not(:first-child) {
     font-family: var(--font-monoui);
@@ -167,8 +169,11 @@
 /*
  * Stats ticker. Two display modes, chosen by the user (button on the strip,
  * persisted as html[data-marquee]):
- *   default        static, centered, truncates with an ellipsis if it overflows
- *   data-marquee   the classic continuously scrolling marquee
+ *   default        static and centered; shows a hardcoded text variant per
+ *                  viewport (.t-short / .t-mid / .t-full) so it never needs
+ *                  an ellipsis
+ *   data-marquee   the classic continuously scrolling marquee (.t-full +
+ *                  .t-dup for the seamless loop)
  * Reduced-motion users always get the static mode.
  */
 @keyframes marquee-scroll {
@@ -183,42 +188,45 @@
   padding-inline: 2.5rem; /* keeps the text clear of the toggle button */
 }
 .marquee-track > span {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.marquee-track > span + span {
   display: none;
+  white-space: nowrap;
 }
-html[data-marquee='on'] .marquee-track {
-  width: max-content;
-  justify-content: flex-start;
-  padding-inline: 0;
-  animation: marquee-scroll 32s linear infinite;
-}
-html[data-marquee='on'] .marquee-track > span {
-  overflow: visible;
-  text-overflow: clip;
-}
-html[data-marquee='on'] .marquee-track > span::after {
-  content: ' · ';
-  white-space: pre;
-}
-html[data-marquee='on'] .marquee-track > span + span {
+.marquee-track > .t-short {
   display: block;
 }
-@media (prefers-reduced-motion: reduce) {
+@media (min-width: 40rem) {
+  .marquee-track > .t-short {
+    display: none;
+  }
+  .marquee-track > .t-mid {
+    display: block;
+  }
+}
+@media (min-width: 64rem) {
+  .marquee-track > .t-mid {
+    display: none;
+  }
+  .marquee-track > .t-full {
+    display: block;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
   html[data-marquee='on'] .marquee-track {
-    width: 100%;
-    justify-content: center;
-    padding-inline: 2.5rem;
-    animation: none;
+    width: max-content;
+    justify-content: flex-start;
+    padding-inline: 0;
+    animation: marquee-scroll 32s linear infinite;
   }
   html[data-marquee='on'] .marquee-track > span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  html[data-marquee='on'] .marquee-track > span + span {
     display: none;
+  }
+  html[data-marquee='on'] .marquee-track > .t-full,
+  html[data-marquee='on'] .marquee-track > .t-dup {
+    display: block;
+  }
+  html[data-marquee='on'] .marquee-track > .t-full::after,
+  html[data-marquee='on'] .marquee-track > .t-dup::after {
+    content: ' · ';
+    white-space: pre;
   }
 }

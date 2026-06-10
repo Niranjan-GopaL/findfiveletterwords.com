@@ -14,13 +14,20 @@ const rest = showCommonBand ? words.slice(COMMON) : words;
 
 const total = words.length.toLocaleString('en-US');
 const showToolbar = words.length > 40;
+
+// Minimum tile width grows with the longest word so 9+ letter words never
+// overflow their box. ~0.58rem per character + room for padding and points.
+let longest = 0;
+for (const w of words) if (w.length > longest) longest = w.length;
+const tileMin = Math.max(6.5, longest * 0.58 + 2.9).toFixed(2);
+const gridStyle = `--tile-min: ${tileMin}rem`;
 ---
 
 {
   showCommonBand && (
     <section class="mt-10">
       <h2 class="font-monoui text-xs uppercase tracking-eyebrow">Most common</h2>
-      <ul class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2">
+      <ul class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(var(--tile-min,6.5rem),1fr))] gap-2" style={gridStyle}>
         {common.map((w) => (
           <li class="wtile wtile-common">
             <span>{w}</span>
@@ -80,8 +87,9 @@ const showToolbar = words.length > 40;
 
   <ul
     id="wg-list"
-    class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2"
+    class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(var(--tile-min,6.5rem),1fr))] gap-2"
     aria-label="Word list"
+    style={gridStyle}
   >
     {
       rest.map((w) => (

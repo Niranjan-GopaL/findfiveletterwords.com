@@ -23,3 +23,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 scripts/raw/
+
+# local bug screenshots / scratch
+example_bug*.png

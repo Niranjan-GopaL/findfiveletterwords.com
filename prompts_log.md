@@ -388,3 +388,40 @@ No one is going to see that strategy tip which is genuinely useful, if it is bur
 
 And after this off we are about to start the new money minting idea ( but I want to switch model from fable to opus before this)
 So let me know when you are done with these
+
+# Results
+
+All done and committed (45be1a2). Both build modes verified: production (1,732 pages, canonical = your domain, indexable) and GitHub Pages (everything under /findfiveletterwords.com/, all routes 200, noindexed).
+
+Your question: how do you know when Google will crawl?
+
+You can't predict it, but you can watch it and you can gate it. Googlebot finds sites through links and sitemaps; an unsubmitted repo site with no inbound links typically takes days-to-weeks
+ before first crawl, but a single share in a public place can trigger it within hours. Two practical points: (1) GitHub Pages gives you no crawl logs, so "watching" isn't really 
+ possible there — which is why I made it moot instead: every GitHub Pages build is now noindexed, so it no longer matters when Google visits; it will see "do not index" whenever it 
+ comes. (2) Once you're on the real domain with Search Console, you'll see exact crawl activity under Settings → Crawl stats, and you can request indexing per-URL.
+
+What I built
+
+GitHub Pages deploy, fully indexing-proof. Push to a repo named findfiveletterwords.com and .github/workflows/deploy.yml deploys 
+it to https://niranjan-gopal.github.io/findfiveletterwords.com/ (enable Settings → Pages → Source: "GitHub Actions" once). 
+The preview build gets noindex, nofollow on every page, robots.txt with Disallow: /, and canonicals still pointing at 
+findfiveletterwords.com — triple protection against your friend's duplicate-content problem. All internal links go through a 
+url() base helper (same method as your workingdays project); markdown links are handled by a rehype plugin; the finder's JSON 
+fetches are base-aware. When you buy the domain, deploy to Cloudflare without the GITHUB_PAGES env var and everything reverts to root paths a
+utomatically — no code changes. Node engines was already >=22.12.0; the workflow uses Node 22.
+
+
+Auto-unpublish after a week: I deliberately skipped it. Making the repo private or deleting the Pages site requires admin permissions that workflow tokens don't have — y
+ou'd need to create and store a personal access token, which isn't "really really easy" and is a security smell. Since the preview can't be indexed anyway, forgetting to 
+unpublish costs you nothing. The README has the two manual commands (10 seconds with gh).
+
+Marquee: two modes, your call. Default is the new design — a static, centered stats strip (truncates gracefully, no motion, no clipping). 
+A small play/pause button on the strip switches to the classic scrolling marquee, persisted per device. Reduced-motion users always get static.
+
+Keyboard everything, remappable. Arrow keys move through the finder boxes (left/right across positions, up/down between positions → contains → exclude). Typing in a position box now overwrites the existing letter — no Backspace needed (boxes also select-on-focus). Single-key shortcuts: / finder, t theme, h home, w word lists, b blog, r jump to results, f jump to FAQs, ? help. In the ? dialog you click any key and press a new one to rebind it — saved in localStorage, conflicts auto-swap, with a reset button. So if a browser extension steals a key, the user just remaps it.
+
+16-20 letter words: yes, they exist — added. Only in ENABLE (Scrabble dictionaries stop at 15 because the board is 15 squares): 1,943 / 1,127 / 594 / 329 / 160 words. All copy and FAQs on those pages are honest about it ("can't be played on a standard Scrabble board; great for crosswords"). Site went from 1,579 to 1,732 pages; finder, footer, tabs, and hub all extended.
+
+Smaller fixes: strategy tip now sits right below the intro on every list page, above the results. The yellow (and green/gray) legend dots got a subtle dark outline so they read clearly against the lilac in light mode. README fully rewritten with the live preview link, data pipeline docs, and the deploy/unpublish/domain-switch runbook.
+
+Done — ready for you to push the repo, and ready for the new idea after you switch to Opus. One heads-up for the next session: the GitHub username in the config is niranjan-gopal (taken from your workingdays URL) — if your actual username differs, it's one line in astro.config.mjs and one in the README.
