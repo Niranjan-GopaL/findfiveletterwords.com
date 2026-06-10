@@ -38,7 +38,7 @@ const totalWords = formatCount(LENGTHS.reduce((sum, l) => sum + WORD_LISTS[l].le
 // Static ticker shows a hardcoded variant per viewport (no mid-text ellipsis);
 // the optional scrolling mode always uses the full text.
 const ticker = `${totalWords} words · 2 to 20 letters · sorted by frequency · Scrabble points on every word · free forever`;
-const tickerMid = `${totalWords} words · 2 to 20 letters · sorted by frequency`;
+const tickerMid = `${totalWords} words · 2 to 20 letters · free forever`;
 const tickerShort = `${totalWords} words · 2 to 20 letters`;
 
 const fontSizes = [
@@ -436,6 +436,41 @@ const year = new Date().getFullYear();
         menuBtn.setAttribute('aria-expanded', String(open));
         menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
       });
+
+      /* ------------------------------------------------------------ */
+      /* Click ripple: one delegated listener, spawned only on         */
+      /* interactive elements, skipped for reduced-motion users.       */
+      /* ------------------------------------------------------------ */
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const RIPPLE_TARGETS = [
+          'button',
+          'summary',
+          'label[class*="rounded-full"]',
+          'a[class*="rounded-full"]',
+          'a[class*="rounded-2xl"]',
+          'a[class*="rounded-3xl"]',
+        ].join(', ');
+        document.addEventListener('pointerdown', (e) => {
+          const host = (e.target as HTMLElement | null)?.closest?.(RIPPLE_TARGETS);
+          if (!(host instanceof HTMLElement)) return;
+          host.classList.add('has-ripple');
+          if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+          const rect = host.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          // Radius reaches the farthest corner so the ripple always covers the element.
+          const radius = Math.hypot(Math.max(x, rect.width - x), Math.max(y, rect.height - y));
+          const ripple = document.createElement('span');
+          ripple.className = 'ripple';
+          ripple.style.width = ripple.style.height = `${radius * 2}px`;
+          ripple.style.left = `${x - radius}px`;
+          ripple.style.top = `${y - radius}px`;
+          const old = host.querySelectorAll(':scope > .ripple');
+          if (old.length > 3) old[0].remove();
+          host.appendChild(ripple);
+          ripple.addEventListener('animationend', () => ripple.remove());
+        });
+      }
 
       /* ------------------------------------------------------------ */
       /* Keyboard shortcuts: single-key actions, remappable in the     */
