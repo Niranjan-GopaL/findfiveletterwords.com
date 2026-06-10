@@ -1,0 +1,23 @@
+# Commands to give the GitHub repo a professional description, homepage, and topics.
+# Run them from inside this project directory (so gh picks up the right repo),
+# or add: --repo niranjan-gopal/findfiveletterwords.com to each command.
+# Requires the GitHub CLI (gh) and a completed `gh auth login`.
+
+# 1) Set the repository description (shown at the top of the repo page and in search results)
+gh repo edit --description "Free word finder for Wordle, Scrabble & Words With Friends. 183k+ words (2-20 letters) across five dictionaries, frequency-sorted, with 1,700+ static pages. Astro 6 + Tailwind 4, fully client-side, zero backend."
+
+# 2) Set the homepage link (shown next to the description)
+#    Use the GitHub Pages preview for now; switch to https://findfiveletterwords.com after you buy the domain.
+gh repo edit --homepage "https://niranjan-gopal.github.io/findfiveletterwords.com/"
+
+# 3) Add topics (improves discoverability and looks polished under the description)
+gh repo edit --add-topic astro --add-topic tailwindcss --add-topic wordle --add-topic scrabble --add-topic word-finder --add-topic word-games --add-topic static-site --add-topic seo
+
+# 4) Optional tidy-up: hide unused repo tabs so the page looks intentional
+gh repo edit --enable-wiki=false --enable-projects=false
+
+# 5) Verify how it all looks
+gh repo view
+
+# --- Later, when the real domain is live, update the homepage with: ---
+# gh repo edit --homepage "https://findfiveletterwords.com"
