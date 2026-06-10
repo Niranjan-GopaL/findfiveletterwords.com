@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/url';
 
 const title = 'Page Not Found | Find Five Letter Words';
 const description = 'That page does not exist. Try the word finder or browse the word lists.';
@@ -15,13 +16,13 @@ const description = 'That page does not exist. Try the word finder or browse the
     </p>
     <div class="mt-10 flex flex-wrap justify-center gap-3">
       <a
-        href="/"
+        href={url('/')}
         class="rounded-full bg-inverse-canvas px-7 py-3 text-base font-mid text-inverse-ink transition-opacity hover:opacity-85"
       >
         Open the word finder
       </a>
       <a
-        href="/word-lists/"
+        href={url('/word-lists/')}
         class="rounded-full border border-hairline px-7 py-3 text-base font-mid transition-colors hover:bg-soft"
       >
         Browse word lists

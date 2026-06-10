@@ -1,4 +1,6 @@
 ---
+import { canonicalUrl, url } from '../lib/url';
+
 interface Crumb {
   href: string;
   label: string;
@@ -18,7 +20,7 @@ const jsonLd = {
     '@type': 'ListItem',
     position: i + 1,
     name: c.label,
-    item: new URL(c.href, Astro.site).href,
+    item: canonicalUrl(c.href),
   })),
 };
 ---
@@ -33,7 +35,7 @@ const jsonLd = {
           </li>
         ) : (
           <li class="flex items-center gap-2">
-            <a class="rounded-xs hover:underline" href={c.href}>
+            <a class="rounded-xs hover:underline" href={url(c.href)}>
               {c.label}
             </a>
             <span aria-hidden="true">/</span>

@@ -4,11 +4,12 @@ import FaqBlock from '../components/FaqBlock.astro';
 import LinkGroups from '../components/LinkGroups.astro';
 import { allPagesFor, type LinkGroup } from '../lib/pages';
 import { ALPHABET, LENGTHS, WORD_LISTS, formatCount, sectionFor } from '../lib/words';
+import { url } from '../lib/url';
 
 const totalWords = formatCount(LENGTHS.reduce((sum, l) => sum + WORD_LISTS[l].length, 0));
 
 const title = 'Find Five Letter Words: Free Word Finder for Wordle & Scrabble';
-const description = `Free word finder for Wordle, Scrabble & Words With Friends. Filter ${totalWords} words (2–15 letters) by position and letters, across five dictionaries, with points.`;
+const description = `Free word finder for Wordle, Scrabble & Words With Friends. Filter ${totalWords} words (2-20 letters) by position and letters, across five dictionaries, with points.`;
 
 const specialSlugs = [
   'with-no-repeated-letters',
@@ -47,7 +48,7 @@ const browseGroups: LinkGroup[] = [
 const faqs = [
   {
     q: 'What dictionaries does Find Five Letter Words use?',
-    a: `Five: the combined tournament list (default), the curated Wordle answer list, Words With Friends (ENABLE), Scrabble US (TWL06), and Scrabble UK (SOWPODS): ${totalWords} words of 2 to 15 letters in total. Switch between them in the finder settings.`,
+    a: `Five: the combined tournament list (default), the curated Wordle answer list, Words With Friends (ENABLE), Scrabble US (TWL06), and Scrabble UK (SOWPODS): ${totalWords} words of 2 to 20 letters in total. Switch between them in the finder settings.`,
   },
   {
     q: 'How do I use the finder for Wordle?',
@@ -74,7 +75,7 @@ const faqs = [
       Find the word you need
     </h1>
     <p class="mx-auto mt-6 max-w-2xl text-lg">
-      A free word finder with every 2-to-15-letter word in the tournament dictionaries, sorted by
+      A free word finder with every 2-to-20-letter word in the major game dictionaries, sorted by
       how common each word is, so the answer you need sits near the top.
     </p>
   </section>
@@ -117,12 +118,12 @@ const faqs = [
 
       <fieldset class="mt-7">
         <legend class="flex items-center gap-2 font-monoui text-xs uppercase tracking-eyebrow">
-          <span class="size-2.5 rounded-full bg-success" aria-hidden="true"></span>
+          <span class="size-2.5 rounded-full border border-blockink/40 bg-success" aria-hidden="true"></span>
           Correct letters in position (green)
         </legend>
         <div id="positions" class="mt-3 flex flex-wrap gap-1.5">
           {
-            Array.from({ length: 15 }, (_, i) => i + 1).map((p) => (
+            Array.from({ length: 20 }, (_, i) => i + 1).map((p) => (
               <input
                 id={`pos-${p}`}
                 name={`pos-${p}`}
@@ -146,7 +147,7 @@ const faqs = [
       <div class="mt-7 grid gap-6 sm:grid-cols-2">
         <div>
           <label for="contains" class="flex items-center gap-2 font-monoui text-xs uppercase tracking-eyebrow">
-            <span class="size-2.5 rounded-full bg-wordle-yellow" aria-hidden="true"></span>
+            <span class="size-2.5 rounded-full border border-blockink/40 bg-wordle-yellow" aria-hidden="true"></span>
             Contains these letters (yellow)
           </label>
           <input
@@ -162,7 +163,7 @@ const faqs = [
         </div>
         <div>
           <label for="excludes" class="flex items-center gap-2 font-monoui text-xs uppercase tracking-eyebrow">
-            <span class="size-2.5 rounded-full bg-blockink/30" aria-hidden="true"></span>
+            <span class="size-2.5 rounded-full border border-blockink/40 bg-blockink/30" aria-hidden="true"></span>
             Exclude these letters (gray)
           </label>
           <input
@@ -254,7 +255,7 @@ const faqs = [
       <noscript>
         <p class="mt-6">
           The interactive finder needs JavaScript. No problem: browse the
-          <a href="/5-letter-words/" class="font-mid underline underline-offset-4">full 5-letter word lists</a>
+          <a href={url('/5-letter-words/')} class="font-mid underline underline-offset-4">full 5-letter word lists</a>
           instead.
         </p>
       </noscript>
@@ -328,7 +329,7 @@ const faqs = [
   const results = document.getElementById('results') as HTMLUListElement;
   const countEl = document.getElementById('count') as HTMLParagraphElement;
   const moreBtn = document.getElementById('more') as HTMLButtonElement;
-  const posInputs = Array.from({ length: 15 }, (_, i) =>
+  const posInputs = Array.from({ length: 20 }, (_, i) =>
     document.getElementById(`pos-${i + 1}`),
   ) as HTMLInputElement[];
   const containsEl = document.getElementById('contains') as HTMLInputElement;
@@ -374,9 +375,10 @@ const faqs = [
     return Number(radio('len')) || 5;
   }
 
+  const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, '');
   async function loadDict(len: number): Promise<Dict> {
     if (!cache[len]) {
-      const res = await fetch(`/data/dicts-${len}.json`);
+      const res = await fetch(`${BASE_URL}/data/dicts-${len}.json`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       cache[len] = (await res.json()) as Dict;
     }
@@ -500,13 +502,49 @@ const faqs = [
 
   posInputs.forEach((el, i) => {
     el.addEventListener('input', () => {
-      el.value = el.value.replace(/[^a-zA-Z]/g, '');
+      // Keep only the most recent letter so typing overwrites without Backspace.
+      el.value = el.value.replace(/[^a-zA-Z]/g, '').slice(-1);
       if (el.value && i + 1 < currentLen()) posInputs[i + 1].focus();
       scheduleRefresh();
     });
+    el.addEventListener('focus', () => el.select());
     el.addEventListener('keydown', (e) => {
       if (e.key === 'Backspace' && !el.value && i > 0) posInputs[i - 1].focus();
+      else if (e.key === 'ArrowLeft' && i > 0) {
+        e.preventDefault();
+        posInputs[i - 1].focus();
+      } else if (e.key === 'ArrowRight' && i + 1 < currentLen()) {
+        e.preventDefault();
+        posInputs[i + 1].focus();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        containsEl.focus();
+      }
     });
+  });
+
+  // Arrow keys also cycle vertically: positions -> contains -> excludes.
+  containsEl.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      posInputs[0].focus();
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      if (e.key === 'ArrowRight' && containsEl.selectionStart !== containsEl.value.length) return;
+      e.preventDefault();
+      excludesEl.focus();
+    }
+  });
+  excludesEl.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      containsEl.focus();
+    } else if (e.key === 'ArrowLeft' && excludesEl.selectionStart === 0) {
+      e.preventDefault();
+      containsEl.focus();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      posInputs[0].focus();
+    }
   });
 
   [containsEl, excludesEl].forEach((el) => el.addEventListener('input', scheduleRefresh));

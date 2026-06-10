@@ -1,5 +1,6 @@
 ---
 import type { LinkGroup } from '../lib/pages';
+import { url } from '../lib/url';
 
 interface Props {
   groups: LinkGroup[];
@@ -16,7 +17,7 @@ const { groups } = Astro.props;
         {g.links.map((l) => (
           <li>
             <a
-              href={l.href}
+              href={url(l.href)}
               class="block rounded-full border border-hairline px-3.5 py-2 text-sm font-mid transition-colors hover:bg-soft"
             >
               {l.label}

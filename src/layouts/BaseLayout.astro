@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { LENGTHS, WORD_LISTS, formatCount, sectionFor } from '../lib/words';
+import { BASE, IS_PREVIEW_DEPLOY, PROD_ORIGIN, canonicalUrl, url } from '../lib/url';
 
 interface Props {
   title: string;
@@ -11,19 +12,19 @@ interface Props {
 
 const { title, description, home = false } = Astro.props;
 
-const path = Astro.url.pathname;
-const canonical = new URL(
-  path.endsWith('/') || path.includes('.') ? path : `${path}/`,
-  Astro.site,
-).href;
+// Canonical always points at the production domain, even on the temporary
+// GitHub Pages deploy, so a stray crawl can never index the preview copy.
+const rawPath = Astro.url.pathname;
+const path = BASE && rawPath.startsWith(BASE) ? rawPath.slice(BASE.length) || '/' : rawPath;
+const canonical = canonicalUrl(path.endsWith('/') || path.includes('.') ? path : `${path}/`);
 
 const websiteJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'Find Five Letter Words',
-  url: Astro.site?.href,
+  url: `${PROD_ORIGIN}/`,
   description:
-    'Free word finder and word lists for Wordle, Scrabble, and Words With Friends: every 2-to-15-letter word, sorted by frequency so common words come first.',
+    'Free word finder and word lists for Wordle, Scrabble, and Words With Friends: every 2-to-20-letter word, sorted by frequency so common words come first.',
 };
 
 const navLinks = [
@@ -34,7 +35,7 @@ const navLinks = [
 ];
 
 const totalWords = formatCount(LENGTHS.reduce((sum, l) => sum + WORD_LISTS[l].length, 0));
-const marquee = `${totalWords} words · 2 to 15 letters · sorted by frequency · Scrabble points on every word · free forever · `;
+const ticker = `${totalWords} words · 2 to 20 letters · sorted by frequency · Scrabble points on every word · free forever`;
 
 const fontSizes = [
   { value: '', label: 'Default' },
@@ -43,12 +44,22 @@ const fontSizes = [
   { value: 'xxl', label: 'Largest' },
 ];
 
+/** Remappable single-key shortcuts (defaults; users can rebind in the dialog). */
 const shortcuts = [
-  { keys: ['/'], action: 'Focus the finder or list filter' },
-  { keys: ['Ctrl', 'F'], action: 'On word-list pages: our filter (press again for the browser find)' },
-  { keys: ['T'], action: 'Toggle dark mode' },
-  { keys: ['?'], action: 'Show this help' },
-  { keys: ['Esc'], action: 'Close dialogs' },
+  { id: 'find', key: '/', action: 'Focus the finder or list filter' },
+  { id: 'theme', key: 't', action: 'Toggle dark mode' },
+  { id: 'home', key: 'h', action: 'Go to the word finder (home)' },
+  { id: 'lists', key: 'w', action: 'Go to the word lists' },
+  { id: 'blog', key: 'b', action: 'Go to the blog' },
+  { id: 'results', key: 'r', action: 'Jump to the word results' },
+  { id: 'faq', key: 'f', action: 'Jump to the FAQs' },
+  { id: 'help', key: '?', action: 'Show this help' },
+];
+
+const fixedShortcuts = [
+  { keys: ['Ctrl', 'F'], action: 'Jump to our filter (press again for the browser find)' },
+  { keys: ['←', '→', '↑', '↓'], action: 'Move between the finder boxes' },
+  { keys: ['Esc'], action: 'Close dialogs and menus' },
 ];
 
 const year = new Date().getFullYear();
@@ -61,10 +72,11 @@ const year = new Date().getFullYear();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {IS_PREVIEW_DEPLOY && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="alternate" type="application/rss+xml" title="Find Five Letter Words blog" href="/rss.xml" />
+    <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
+    <link rel="sitemap" href={url('/sitemap-index.xml')} />
+    <link rel="alternate" type="application/rss+xml" title="Find Five Letter Words blog" href={url('/rss.xml')} />
     <meta name="theme-color" content="#ffffff" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Find Five Letter Words" />
@@ -81,6 +93,8 @@ const year = new Date().getFullYear();
           document.documentElement.dataset.theme = theme;
           var size = localStorage.getItem('fflw-fontsize');
           if (size) document.documentElement.dataset.fontsize = size;
+          if (localStorage.getItem('fflw-marquee') === 'on')
+            document.documentElement.dataset.marquee = 'on';
         } catch (e) {
           document.documentElement.dataset.theme = 'light';
         }
@@ -98,7 +112,7 @@ const year = new Date().getFullYear();
 
     <header class="sticky top-0 z-40 border-b border-hairline bg-canvas">
       <div class="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4">
-        <a href="/" class="rounded-xs text-lg font-snug tracking-display whitespace-nowrap" translate="no">
+        <a href={url('/')} class="rounded-xs text-lg font-snug tracking-display whitespace-nowrap" translate="no">
           Find Five Letter Words
         </a>
         <nav aria-label="Primary" class="max-md:hidden">
@@ -106,7 +120,7 @@ const year = new Date().getFullYear();
             {
               navLinks.map((l) => (
                 <li>
-                  <a class="block rounded-full px-3.5 py-2 text-base font-mid transition-colors hover:bg-soft" href={l.href}>
+                  <a class="block rounded-full px-3.5 py-2 text-base font-mid transition-colors hover:bg-soft" href={url(l.href)}>
                     {l.label}
                   </a>
                 </li>
@@ -171,7 +185,7 @@ const year = new Date().getFullYear();
           {
             navLinks.map((l) => (
               <li>
-                <a class="block rounded-md px-2 py-3 text-lg font-mid hover:bg-soft" href={l.href}>
+                <a class="block rounded-md px-2 py-3 text-lg font-mid hover:bg-soft" href={url(l.href)}>
                   {l.label}
                 </a>
               </li>
@@ -181,11 +195,27 @@ const year = new Date().getFullYear();
       </nav>
     </header>
 
-    <div class="flex h-9 items-center overflow-hidden bg-navy" aria-hidden="true">
-      <p class="marquee-track font-monoui text-xs uppercase tracking-eyebrow text-white motion-reduce:whitespace-normal motion-reduce:px-4">
-        <span class="whitespace-nowrap motion-reduce:whitespace-normal motion-reduce:truncate">{marquee}</span>
-        <span class="whitespace-nowrap motion-reduce:hidden">{marquee}</span>
+    <!-- Stats ticker. Static by default; the button turns the classic
+         scrolling-marquee mode on for people who like it. -->
+    <div class="relative flex h-9 items-center overflow-hidden bg-navy">
+      <p class="marquee-track font-monoui text-xs uppercase tracking-eyebrow text-white" aria-hidden="true">
+        <span>{ticker}</span>
+        <span>{ticker}</span>
       </p>
+      <button
+        id="marquee-toggle"
+        type="button"
+        aria-pressed="false"
+        aria-label="Toggle ticker animation"
+        class="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/15 hover:text-white"
+      >
+        <svg class="icon-play size-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"></path>
+        </svg>
+        <svg class="icon-pause size-3.5" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 5h4v14H6zM14 5h4v14h-4z"></path>
+        </svg>
+      </button>
     </div>
 
     <main id="main" class="mx-auto max-w-7xl px-4">
@@ -202,7 +232,7 @@ const year = new Date().getFullYear();
               {
                 LENGTHS.map((l) => (
                   <li>
-                    <a class="rounded-xs font-mid hover:underline" href={`/${sectionFor(l)}/`}>
+                    <a class="rounded-xs font-mid hover:underline" href={url(`/${sectionFor(l)}/`)}>
                       {l}-letter words
                     </a>
                   </li>
@@ -213,20 +243,20 @@ const year = new Date().getFullYear();
           <div>
             <h2 class="font-monoui text-xs uppercase tracking-eyebrow">Popular</h2>
             <ul class="mt-4 space-y-2 text-base">
-              <li><a class="rounded-xs font-mid hover:underline" href="/">Word finder &amp; solver</a></li>
-              <li><a class="rounded-xs font-mid hover:underline" href="/5-letter-words/with-no-repeated-letters/">Best Wordle starter words</a></li>
-              <li><a class="rounded-xs font-mid hover:underline" href="/5-letter-words/without-vowels/">Words without vowels</a></li>
-              <li><a class="rounded-xs font-mid hover:underline" href="/2-letter-words/">Two-letter Scrabble words</a></li>
-              <li><a class="rounded-xs font-mid hover:underline" href="/blog/">Blog</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href={url('/')}>Word finder &amp; solver</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href={url('/5-letter-words/with-no-repeated-letters/')}>Best Wordle starter words</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href={url('/5-letter-words/without-vowels/')}>Words without vowels</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href={url('/2-letter-words/')}>Two-letter Scrabble words</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href={url('/blog/')}>Blog</a></li>
             </ul>
           </div>
           <div>
             <h2 class="font-monoui text-xs uppercase tracking-eyebrow">Site</h2>
             <ul class="mt-4 space-y-2 text-base">
-              <li><a class="rounded-xs font-mid hover:underline" href="/about/">About</a></li>
-              <li><a class="rounded-xs font-mid hover:underline" href="/privacy-policy/">Privacy policy</a></li>
-              <li><a class="rounded-xs font-mid hover:underline" href="/contact/">Contact</a></li>
-              <li><a class="rounded-xs font-mid hover:underline" href="/rss.xml">RSS feed</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href={url('/about/')}>About</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href={url('/privacy-policy/')}>Privacy policy</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href={url('/contact/')}>Contact</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href={url('/rss.xml')}>RSS feed</a></li>
             </ul>
           </div>
         </div>
@@ -239,7 +269,7 @@ const year = new Date().getFullYear();
 
     <dialog
       id="kbd-help"
-      class="m-auto w-[min(92vw,28rem)] rounded-3xl border border-hairline bg-canvas p-6 text-ink backdrop:bg-black/50"
+      class="m-auto w-[min(92vw,30rem)] rounded-3xl border border-hairline bg-canvas p-6 text-ink backdrop:bg-black/50"
     >
       <div class="flex items-center justify-between gap-4">
         <h2 class="text-xl font-snug tracking-display">Keyboard shortcuts</h2>
@@ -254,10 +284,32 @@ const year = new Date().getFullYear();
           </svg>
         </button>
       </div>
-      <dl class="mt-5 space-y-4">
+      <p class="mt-3 text-sm font-soft">
+        Click a key to choose your own binding. It is saved on this device, so it wins over
+        anything your browser or extensions use.
+      </p>
+      <dl class="mt-4 space-y-3">
         {
           shortcuts.map((s) => (
-            <div class="flex items-start justify-between gap-6">
+            <div class="flex items-center justify-between gap-6">
+              <dt class="text-base">{s.action}</dt>
+              <dd class="shrink-0">
+                <button
+                  type="button"
+                  class="kbd-rebind rounded-md border border-hairline bg-soft px-2 py-1 font-monoui text-xs uppercase transition-colors hover:border-ink"
+                  data-action={s.id}
+                  data-default={s.key}
+                  aria-label={`Change the key for: ${s.action}`}
+                >
+                  {s.key}
+                </button>
+              </dd>
+            </div>
+          ))
+        }
+        {
+          fixedShortcuts.map((s) => (
+            <div class="flex items-center justify-between gap-6">
               <dt class="text-base">{s.action}</dt>
               <dd class="flex shrink-0 gap-1">
                 {s.keys.map((k) => (
@@ -268,6 +320,13 @@ const year = new Date().getFullYear();
           ))
         }
       </dl>
+      <button
+        id="kbd-reset"
+        type="button"
+        class="mt-5 rounded-full border border-hairline px-4 py-1.5 text-sm font-mid transition-colors hover:bg-soft"
+      >
+        Reset keys to defaults
+      </button>
     </dialog>
 
     <style>
@@ -278,6 +337,12 @@ const year = new Date().getFullYear();
         display: none;
       }
       html:not([data-theme='dark']) .icon-sun {
+        display: none;
+      }
+      html[data-marquee='on'] .icon-play {
+        display: none;
+      }
+      html:not([data-marquee='on']) .icon-pause {
         display: none;
       }
     </style>
@@ -334,6 +399,28 @@ const year = new Date().getFullYear();
         if (sizeMenu?.open && !sizeMenu.contains(e.target as Node)) sizeMenu.open = false;
       });
 
+      /* Ticker: static by default, classic marquee on request */
+      const marqueeBtn = document.getElementById('marquee-toggle');
+      function syncMarqueeBtn() {
+        marqueeBtn?.setAttribute(
+          'aria-pressed',
+          String(document.documentElement.dataset.marquee === 'on'),
+        );
+      }
+      syncMarqueeBtn();
+      marqueeBtn?.addEventListener('click', () => {
+        const on = document.documentElement.dataset.marquee === 'on';
+        if (on) delete document.documentElement.dataset.marquee;
+        else document.documentElement.dataset.marquee = 'on';
+        try {
+          if (on) localStorage.removeItem('fflw-marquee');
+          else localStorage.setItem('fflw-marquee', 'on');
+        } catch {
+          /* private mode */
+        }
+        syncMarqueeBtn();
+      });
+
       /* Mobile menu */
       const menuBtn = document.getElementById('menu-toggle');
       const menu = document.getElementById('mobile-menu');
@@ -344,7 +431,11 @@ const year = new Date().getFullYear();
         menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
       });
 
-      /* Keyboard shortcuts */
+      /* ------------------------------------------------------------ */
+      /* Keyboard shortcuts: single-key actions, remappable in the     */
+      /* help dialog, persisted per device in localStorage.            */
+      /* ------------------------------------------------------------ */
+      const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, '');
       const kbdDialog = document.getElementById('kbd-help') as HTMLDialogElement | null;
       document.getElementById('kbd-close')?.addEventListener('click', () => kbdDialog?.close());
       kbdDialog?.addEventListener('click', (e) => {
@@ -355,8 +446,101 @@ const year = new Date().getFullYear();
         return (document.getElementById('wg-filter') ??
           document.getElementById('pos-1')) as HTMLInputElement | null;
       }
+      function jumpTo(id: string) {
+        const el = document.getElementById(id);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      const ACTIONS: Record<string, () => void> = {
+        find: () => {
+          const el = findTarget();
+          el?.focus();
+          el?.select?.();
+        },
+        theme: () => themeBtn?.click(),
+        home: () => location.assign(`${BASE_URL}/`),
+        lists: () => location.assign(`${BASE_URL}/word-lists/`),
+        blog: () => location.assign(`${BASE_URL}/blog/`),
+        results: () => jumpTo(document.getElementById('results') ? 'results' : 'wg'),
+        faq: () => jumpTo('faq'),
+        help: () => kbdDialog?.showModal(),
+      };
+
+      const KEYS_STORE = 'fflw-keys';
+      const rebindBtns = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('.kbd-rebind'),
+      );
+      function loadKeyOverrides(): Record<string, string> {
+        try {
+          return JSON.parse(localStorage.getItem(KEYS_STORE) ?? '{}');
+        } catch {
+          return {};
+        }
+      }
+      function saveKeyOverrides(map: Record<string, string>) {
+        try {
+          localStorage.setItem(KEYS_STORE, JSON.stringify(map));
+        } catch {
+          /* private mode */
+        }
+      }
+      function keyFor(action: string): string {
+        const overrides = loadKeyOverrides();
+        return (
+          overrides[action] ??
+          rebindBtns.find((b) => b.dataset.action === action)?.dataset.default ??
+          ''
+        );
+      }
+      function syncRebindLabels() {
+        rebindBtns.forEach((b) => (b.textContent = keyFor(b.dataset.action!)));
+      }
+      syncRebindLabels();
+
+      let rebinding: HTMLButtonElement | null = null;
+      rebindBtns.forEach((b) =>
+        b.addEventListener('click', () => {
+          if (rebinding) rebinding.textContent = keyFor(rebinding.dataset.action!);
+          rebinding = b;
+          b.textContent = 'press a key';
+        }),
+      );
+      document.getElementById('kbd-reset')?.addEventListener('click', () => {
+        saveKeyOverrides({});
+        rebinding = null;
+        syncRebindLabels();
+      });
+      kbdDialog?.addEventListener('close', () => {
+        if (rebinding) {
+          rebinding.textContent = keyFor(rebinding.dataset.action!);
+          rebinding = null;
+        }
+      });
 
       document.addEventListener('keydown', (e) => {
+        // Capture mode: the next plain keypress becomes the new binding.
+        if (rebinding) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.key !== 'Escape' && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            const newKey = e.key.toLowerCase();
+            const action = rebinding.dataset.action!;
+            const overrides = loadKeyOverrides();
+            // If another action already uses this key, swap so nothing is lost.
+            for (const other of rebindBtns) {
+              const otherAction = other.dataset.action!;
+              if (otherAction !== action && keyFor(otherAction) === newKey) {
+                overrides[otherAction] = keyFor(action);
+              }
+            }
+            overrides[action] = newKey;
+            saveKeyOverrides(overrides);
+          }
+          rebinding = null;
+          syncRebindLabels();
+          return;
+        }
+
         const t = e.target as HTMLElement;
         const typing =
           t &&
@@ -373,18 +557,16 @@ const year = new Date().getFullYear();
           return;
         }
         if (e.ctrlKey || e.metaKey || e.altKey || typing) return;
+        if (e.key.length !== 1) return;
 
-        if (e.key === '?') {
-          e.preventDefault();
-          kbdDialog?.showModal();
-        } else if (e.key === '/') {
-          const el = findTarget();
-          if (el) {
+        const pressed = e.key === '?' ? '?' : e.key.toLowerCase();
+        for (const b of rebindBtns) {
+          const action = b.dataset.action!;
+          if (keyFor(action) === pressed) {
             e.preventDefault();
-            el.focus();
+            ACTIONS[action]?.();
+            return;
           }
-        } else if (e.key === 't' || e.key === 'T') {
-          themeBtn?.click();
         }
       });
     </script>

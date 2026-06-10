@@ -1,5 +1,6 @@
 ---
 import { LENGTHS, sectionFor, type WordLength } from '../lib/words';
+import { url } from '../lib/url';
 
 interface Props {
   current?: WordLength;
@@ -14,7 +15,7 @@ const { current } = Astro.props;
       LENGTHS.map((l) => (
         <li>
           <a
-            href={`/${sectionFor(l)}/`}
+            href={url(`/${sectionFor(l)}/`)}
             aria-current={l === current ? 'page' : undefined}
             class:list={[
               'block rounded-full px-3.5 py-1.5 text-sm font-mid whitespace-nowrap transition-colors',

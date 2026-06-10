@@ -15,10 +15,16 @@ import dicts12 from '../../data/dicts-12.json';
 import dicts13 from '../../data/dicts-13.json';
 import dicts14 from '../../data/dicts-14.json';
 import dicts15 from '../../data/dicts-15.json';
+import dicts16 from '../../data/dicts-16.json';
+import dicts17 from '../../data/dicts-17.json';
+import dicts18 from '../../data/dicts-18.json';
+import dicts19 from '../../data/dicts-19.json';
+import dicts20 from '../../data/dicts-20.json';
 
 const DICTS: Record<number, unknown> = {
   2: dicts2, 3: dicts3, 4: dicts4, 5: dicts5, 6: dicts6, 7: dicts7, 8: dicts8,
   9: dicts9, 10: dicts10, 11: dicts11, 12: dicts12, 13: dicts13, 14: dicts14, 15: dicts15,
+  16: dicts16, 17: dicts17, 18: dicts18, 19: dicts19, 20: dicts20,
 };
 
 export function getStaticPaths() {

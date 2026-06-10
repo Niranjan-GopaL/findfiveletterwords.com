@@ -1,0 +1,54 @@
+# Temporary deployment to GitHub project pages for the feedback round.
+#
+# Safety against duplicate-content / accidental indexing:
+#   - GITHUB_PAGES=true makes every page carry <meta name="robots" content="noindex, nofollow">
+#     and a canonical pointing at https://findfiveletterwords.com
+#   - robots.txt is overwritten with Disallow: / for this deploy only
+#
+# To unpublish later (manual, see README):
+#   gh api -X DELETE repos/<owner>/<repo>/pages
+#   gh repo edit <owner>/<repo> --visibility private --accept-visibility-change-consequences
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          GITHUB_PAGES: 'true'
+      - name: Block crawlers on the preview deploy
+        run: printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

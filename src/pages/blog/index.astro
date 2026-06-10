@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { url } from '../../lib/url';
 
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
@@ -36,7 +37,7 @@ const blocks = ['bg-mint', 'bg-cream', 'bg-pink', 'bg-lilac', 'bg-lime', 'bg-cor
       posts.map((post, i) => (
         <li>
           <a
-            href={`/blog/${post.id}/`}
+            href={url(`/blog/${post.id}/`)}
             class="block h-full rounded-3xl p-6 text-blockink transition-transform hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             class:list={blocks[i % blocks.length]}
           >

@@ -12,10 +12,21 @@ import words12 from '../data/words-12.json';
 import words13 from '../data/words-13.json';
 import words14 from '../data/words-14.json';
 import words15 from '../data/words-15.json';
+import words16 from '../data/words-16.json';
+import words17 from '../data/words-17.json';
+import words18 from '../data/words-18.json';
+import words19 from '../data/words-19.json';
+import words20 from '../data/words-20.json';
 
-export type WordLength = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+export type WordLength =
+  | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
 
-export const LENGTHS: WordLength[] = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+export const LENGTHS: WordLength[] = [
+  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+];
+
+/** Scrabble boards are 15 squares; longer words come from ENABLE only. */
+export const SCRABBLE_MAX_LEN = 15;
 
 /** Frequency-sorted (most common first) tournament word lists (ENABLE ∪ TWL). */
 export const WORD_LISTS: Record<WordLength, string[]> = {
@@ -33,6 +44,11 @@ export const WORD_LISTS: Record<WordLength, string[]> = {
   13: words13 as string[],
   14: words14 as string[],
   15: words15 as string[],
+  16: words16 as string[],
+  17: words17 as string[],
+  18: words18 as string[],
+  19: words19 as string[],
+  20: words20 as string[],
 };
 
 export const LENGTH_NAMES: Record<WordLength, string> = {
@@ -50,6 +66,11 @@ export const LENGTH_NAMES: Record<WordLength, string> = {
   13: 'thirteen',
   14: 'fourteen',
   15: 'fifteen',
+  16: 'sixteen',
+  17: 'seventeen',
+  18: 'eighteen',
+  19: 'nineteen',
+  20: 'twenty',
 };
 
 /** Lengths that get the heavyweight "with-X" (containing) page family. */
@@ -80,7 +101,7 @@ export function sectionFor(len: WordLength): string {
 }
 
 export function lengthForSection(section: string): WordLength | undefined {
-  const m = section.match(/^(1[0-5]|[2-9])-letter-words$/);
+  const m = section.match(/^(20|1[0-9]|[2-9])-letter-words$/);
   return m ? (Number(m[1]) as WordLength) : undefined;
 }
 

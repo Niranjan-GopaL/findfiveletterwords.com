@@ -292,3 +292,99 @@ how can we make sure we add all the keywords will point to the same website ?
 Will easter eggs increase SEO ?
 - If I publish this in github pages and share with my friends to get feedbacck, and after that if I unpublish and deploy using cloudflare on the domain I bought, do you think it'll cause any issue of duplicate websites ? 
   I heard a friend of mine telling that the dummy link we get when he first uploads his dist to cloudflare, that dummy link and his original domain had the same content so it was a reason for his site to not get indexed or something, but I don't know how much of truth is in this.
+
+
+# Results :
+
+All done and committed (fe5187a). The build is clean: 1,579 pages, 0 label audit errors site-wide, 0 em-dashes anywhere in the built HTML, all routes 200, JSON-LD valid.
+
+What changed in code
+
+- 9 a11y errors fixed — and it turned out to be more than 9: the audit flags any <label> without a for attribute. Every control now has an explicit id/for pair: the length radios, the 5 dictionary radios, 3 sort radios, the homepage points checkbox, and the points toggle in the list toolbar (that one alone was on all 970 list pages).
+- Font-size control — an "Aa" menu in the header with Default / Large / Larger / Largest. The better way I chose: instead of resizing individual elements, it sets html[data-fontsize] which scales the root font-size (112.5% / 125% / 137.5%). Since the whole site is rem-based, everything scales proportionally — spacing, inputs, tiles — with 3 lines of CSS. Persists in localStorage, applied before paint so no flash.
+- Foldable FAQs — now <details>/<summary> with a rotating chevron. No, it won't hurt crawlers: Google explicitly indexes content inside collapsed <details> (it's in the HTML, just visually hidden), and your FAQPage JSON-LD is unchanged. This is safer than JS-driven accordions.
+- Dark mode — pastels are now muted deep versions in dark mode (e.g. the pink/lilac become desaturated dark tints), and pure white-on-black is gone: canvas is #141417 and ink #e4e4e8 in dark, #1b1b1f on #ffffff in light. Easier on the eyes, still passes contrast.
+- Marquee — rebuilt as a two-copy width: max-content track animating translateX(-50%), so it loops seamlessly at any viewport width instead of clipping. Pauses for reduced-motion users.
+- Mobile results — small viewports now show 40 initial words instead of 120 ("Show more" loads the rest).
+- Keyboard shortcuts — / focuses the finder, T toggles theme, Esc closes things, ? opens a native <dialog> listing everything. Discovery is passive: a tiny "Press ? for shortcuts" hint in the finder bar and footer — no button, no popup.
+- Custom Ctrl+F — Ctrl/Cmd+F now focuses our filter box (the list filter on word pages, position 1 on the home page). Pressing it a second time while already focused falls through to the real browser find, so power users are never trapped.
+
+Your questions
+
+Branding: keep "Find Five Letter Words." "5 letter words" has roughly 10× the search volume of any other length — it's the head term, and an exact-match-style brand for it is an asset. "Find Any Letter Words" matches nothing anyone searches. You capture the other keywords through pages, not the brand: /7-letter-words/, /5-letter-words/starting-with-s/, etc. all rank for their own queries while pointing at the same site. That's exactly what the 1,579-page structure does. The favicon stays.
+
+What <noscript> does: its content renders only when JavaScript is disabled or fails. Normally it's invisible. Yours shows "The finder needs JavaScript — browse the full word lists instead" with a link, so no-JS visitors (and some crawlers) get a working path instead of a dead form.
+
+Do easter eggs increase SEO? Not directly — Google can't "find" a Ctrl+F handler. Indirectly, a little: anything that makes people stay longer, return, and share the link feeds the engagement and backlink signals that do matter. Think of it as retention/brand work, not SEO work. Worth having, not worth counting on.
+
+github pages → cloudflare duplicate content: your friend's problem is real but it wasn't github pages — it was the *.pages.dev preview subdomain cloudflare gives every project, which stays live alongside the real domain forever unless you handle it. fix is easy: every page already emits a <link rel="canonical"> pointing at findfiveletterwords.com, so google consolidates to the real domain; additionally, add a cloudflare bulk redirect (or a tiny _redirects rule) sending *.pages.dev → your domain. for github pages specifically: sharing with friends for a week is harmless if you either add <meta name="robots" content="noindex"> for that build or just unpublish before google crawls it — a 404'd pages site leaves no duplicate trace.
+
+Remaining SEO checklist (in priority order): (1) buy the domain and deploy, since site age is the clock that matters; (2) Search Console + submit sitemap-index.xml; (3) redirect/canonicalize *.pages.dev as above; (4) get a handful of real backlinks — Reddit r/wordle, word-game Discords, a Product Hunt-style post; (5) keep publishing blog posts (1–2/month targeting question queries like "5 letter words with no vowels"); (6) add og:image per page type for shareability; (7) once indexed, check Core Web Vitals in Search Console — the heavy list pages are the ones to watch; (8) only then apply for AdSense (approval is much easier with indexed pages and some traffic).
+
+
+# Next prompt
+
+- "for that build or just unpublish before Google crawls it — a 404'd Pages site leaves no duplicate trace" => oh i see, how can we know when will Google's crawlers crawl our page ?
+  
+- I know the marque design is modern, I don't want the motion, if clipping solutions are not in our favour can you figure out some other way to display it. I always hated these constantly moving
+  things in a web page. We can A/B test later when we have good traffic, from a stricly design pov you're doing really good job, but lets try to find some other way yea ? 
+  Wait moving marque is kinda cool in some sense as well, is there a way for user to control that ? Like I want it like this :
+  1. the current marque design ( don't remove that )
+  2. The new design you are gonna come up with
+The user can select what they want ( by default it needs to be 2. whatever new thing you will come up with)
+
+-  also in the keyboard shortcuts, maybe can we have moving around using arrow keys in the finder across acorss boxes, some way to cycle between the textboxes and a really easy way to highlight
+  what keys to press to move around the. I want it so that these keybindings the user can change/set because the once we have might be over ridden by their. is this possible to do ? I want to be
+  able to do everything, navigate every single section of this website purely through keybindings.
+
+- Also in the finder, I don't want to have to press backspace on a box, and type the new letter. I want to be able to type new later, and it'll just overwrite the old letter in the box. The
+  yellow circle in "contains these letters" in light theme, against the light purple kinda fades / is difficult to see. You did really good in the dark theme I love it now
+
+- also can we have add 16 to 20 letter words ( if they are available ? ) 
+
+- Also I want you to modify @astro.config.mjs and ALL OTHER FILES so that I can publish to github pages and have no worry that this site might get indexed and we would end up in the same situation as our friend.
+you might need to create a .github/ and some yaml file for workflows. Please note this, you might need to change node veriosn in package json to 22
+  "engines": {
+    "node": ">=22.12.0"
+  },
+I will use another project I did where I deployed to github, we might need to use this base url methode thorughout our project.
+Because we are only using github pages temporaryily, afterwards we will use the domain that I buy.
+So our modifications should take into considerations these two facts
+// https://astro.build/config
+//
+// Deployed on GitHub *project* pages while testing:
+//   https://niranjan-gopal.github.io/workingdayscalculatoronline.com/
+// `base` puts the whole site under that subpath. Internal links go through
+// src/lib/path.js (`url()`) so they include the base.
+//
+// 👉 When you buy the domain, switch to:
+//      site: 'https://workingdayscalculatoronline.com', base: '/'
+//    add public/CNAME, and the `url()` helper becomes a no-op (no other changes).
+export default defineConfig({
+  site: 'https://niranjan-gopal.github.io',
+  base: '/workingdayscalculatoronline.com',
+  output: 'static',
+  integrations: [sitemap()],
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});
+
+You said this :
+fix is easy: every page already emits a <link rel="canonical"> pointing at findfiveletterwords.com, so google consolidates to the real domain; 
+additionally, add a cloudflare bulk redirect (or a tiny _redirects rule) sending *.pages.dev → your domain. 
+for github pages specifically: sharing with friends for a week is harmless if you either add <meta name="robots" content="noindex"> 
+for that build or just unpublish before google crawls it — a 404'd pages site leaves no duplicate trace.
+
+Also do this ONLY if you think it's REALLY REALLY easy :
+I might forget to unpublish after a week is there some way to make sure that this will unpublished in a week and the repo will be made private. 
+If this is a bit hectic don't worry, I can do it myself
+
+- Can we have the stratgey tip just below the hero section in all those http://localhost:4321/[some number]-letter-words/with-[some letter]/
+No one is going to see that strategy tip which is genuinely useful, if it is burried under all that results.
+
+
+- I want you to clean up the codebase, link the live github pages website as well, give a good readme and make a commit.
+
+And after this off we are about to start the new money minting idea ( but I want to switch model from fable to opus before this)
+So let me know when you are done with these

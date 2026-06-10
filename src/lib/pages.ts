@@ -3,6 +3,7 @@ import {
   CONTAINS_MAX_LEN,
   LENGTH_NAMES,
   LENGTHS,
+  SCRABBLE_MAX_LEN,
   VOWELS,
   WORD_LISTS,
   formatCount,
@@ -78,7 +79,13 @@ interface FamilyCopy {
 function gamesFor(len: WordLength): string {
   if (len === 5) return 'Wordle, Scrabble, and Words With Friends';
   if (len <= 8) return 'Scrabble, Words With Friends, and other word games';
-  return 'Scrabble, crosswords, and other word puzzles';
+  if (len <= SCRABBLE_MAX_LEN) return 'Scrabble, crosswords, and other word puzzles';
+  return 'crosswords, spelling bees, and vocabulary building';
+}
+
+/** Where the words on a page come from, phrased for body copy. */
+function sourceFor(len: WordLength): string {
+  return len <= SCRABBLE_MAX_LEN ? 'the tournament word lists' : 'the ENABLE dictionary';
 }
 
 function introTemplates(len: WordLength, c: FamilyCopy, words: string[], seed: string): string[] {
@@ -86,14 +93,15 @@ function introTemplates(len: WordLength, c: FamilyCopy, words: string[], seed: s
   const name = LENGTH_NAMES[len];
   const top3 = topWords(words, 3);
   const games = gamesFor(len);
+  const source = sourceFor(len);
   const variants: string[][] = [
     [
-      `Looking for ${name}-letter words ${c.phraseLower}? There are ${n} of them in the tournament word lists, and every one is on this page. The most common, like ${top3}, sit right at the top.`,
+      `Looking for ${name}-letter words ${c.phraseLower}? There are ${n} of them in ${source}, and every one is on this page. The most common, like ${top3}, sit right at the top.`,
       `Unlike alphabetical lists that bury likely answers in the middle, this list is sorted by how often each word appears in everyday English. Scan the first rows for probable answers; dig deeper for rare, high-scoring plays.`,
     ],
     [
-      `There are ${n} ${name}-letter words ${c.phraseLower}. The list below ranks them by real-world frequency, so everyday words like ${top3} appear before the tournament obscurities.`,
-      `Every entry comes from the tournament word lists used in ${games}, so you can play each one with confidence.`,
+      `There are ${n} ${name}-letter words ${c.phraseLower}. The list below ranks them by real-world frequency, so everyday words like ${top3} appear before the obscurities.`,
+      `Every entry comes from ${source}, the kind of list used in ${games}, so each one is a genuine dictionary word.`,
     ],
     [
       `Our word finder knows ${n} ${name}-letter words ${c.phraseLower}. Common picks such as ${top3} lead the list, which makes it faster to spot the word your puzzle is hiding.`,
@@ -113,9 +121,15 @@ const TIPS_GENERAL = [
   'Use the sort control above the list to flip between common-first, alphabetical, and highest-scoring order.',
   'Narrow things down faster with the word finder on the home page: lock in the letters you know and it filters the entire dictionary in an instant.',
 ];
+const TIPS_LONG = [
+  'Solving a crossword? The frequency sort means the everyday answers are in the first rows; the technical and scientific terms wait further down.',
+  'Use the sort control above the list to flip between common-first, alphabetical, and highest-scoring order.',
+  'Narrow things down faster with the word finder on the home page: lock in the letters you know and it filters the entire dictionary in an instant.',
+];
 
 function pickTip(len: WordLength, seed: string): string {
-  const pool = len === 5 ? [...TIPS_WORDLE, ...TIPS_GENERAL] : TIPS_GENERAL;
+  const pool =
+    len === 5 ? [...TIPS_WORDLE, ...TIPS_GENERAL] : len > SCRABBLE_MAX_LEN ? TIPS_LONG : TIPS_GENERAL;
   return pick(pool, seed);
 }
 
@@ -125,10 +139,15 @@ function faqsFor(len: WordLength, c: FamilyCopy, words: string[], seed: string):
   const top3 = topWords(words, 3);
   const top5 = topWords(words, 5);
   const validity: Faq[] = [
-    {
-      q: 'Can I play these words in Scrabble?',
-      a: 'Yes. The list combines ENABLE and the North American tournament list (TWL), so these words are playable in Scrabble-style games, including Words With Friends.',
-    },
+    len <= SCRABBLE_MAX_LEN
+      ? {
+          q: 'Can I play these words in Scrabble?',
+          a: 'Yes. The list combines ENABLE and the North American tournament list (TWL), so these words are playable in Scrabble-style games, including Words With Friends.',
+        }
+      : {
+          q: 'Can I play these words in Scrabble?',
+          a: `Not on a standard board: Scrabble boards are 15 squares wide, so ${name}-letter words physically cannot be played. These words come from the ENABLE dictionary and shine in crosswords, spelling bees, and vocabulary study.`,
+        },
     {
       q: 'Why are the words in this order?',
       a: 'Words are ranked by how often they appear in a trillion-word corpus of written English, most common first. That surfaces likely puzzle answers instead of hiding them mid-alphabet. Use the sort control to switch to alphabetical or points order.',
@@ -143,7 +162,7 @@ function faqsFor(len: WordLength, c: FamilyCopy, words: string[], seed: string):
   return [
     {
       q: `How many ${name}-letter words are there ${c.phraseLower}?`,
-      a: `There are ${n} ${name}-letter words ${c.phraseLower} in the tournament word lists. The most common are ${top3}.`,
+      a: `There are ${n} ${name}-letter words ${c.phraseLower} in ${sourceFor(len)}. The most common are ${top3}.`,
     },
     {
       q: `What are common ${name}-letter words ${c.phraseLower}?`,

@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { PROD_ORIGIN, canonicalUrl, url } from '../../lib/url';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -12,7 +13,6 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 
 const fmt = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-const url = new URL(`/blog/${post.id}/`, Astro.site).href;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -21,11 +21,11 @@ const jsonLd = {
   description: post.data.description,
   datePublished: post.data.pubDate.toISOString(),
   dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
-  mainEntityOfPage: url,
+  mainEntityOfPage: canonicalUrl(`/blog/${post.id}/`),
   author: {
     '@type': 'Organization',
     name: 'Find Five Letter Words',
-    url: Astro.site?.href,
+    url: `${PROD_ORIGIN}/`,
   },
 };
 
@@ -59,10 +59,10 @@ const crumbs = [
     <aside class="mt-14 rounded-3xl bg-lilac p-6 text-blockink sm:p-8">
       <p class="text-xl font-snug tracking-display">Stuck on today's puzzle?</p>
       <p class="mt-2">
-        The free word finder filters every 2-to-15-letter word by the letters you already know.
+        The free word finder filters every 2-to-20-letter word by the letters you already know.
       </p>
       <a
-        href="/"
+        href={url('/')}
         class="mt-5 inline-block rounded-full bg-blockink px-7 py-2.5 text-base font-mid text-white transition-opacity hover:opacity-85"
       >
         Open the word finder

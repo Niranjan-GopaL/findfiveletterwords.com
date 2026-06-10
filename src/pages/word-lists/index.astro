@@ -2,10 +2,11 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { LENGTHS, LENGTH_NAMES, WORD_LISTS, formatCount, sectionFor, topWords } from '../../lib/words';
+import { url } from '../../lib/url';
 
-const title = 'Word Lists by Length: 2 to 15 Letter Words';
+const title = 'Word Lists by Length: 2 to 20 Letter Words';
 const description =
-  'Browse every word list from 2-letter to 15-letter words: tournament-legal, sorted by frequency, with Scrabble points. Free lists for Wordle, Scrabble & crosswords.';
+  'Browse every word list from 2-letter to 20-letter words: dictionary-checked, sorted by frequency, with Scrabble points. Free lists for Wordle, Scrabble & crosswords.';
 
 const crumbs = [
   { href: '/', label: 'Home' },
@@ -22,9 +23,9 @@ const blocks = ['bg-lime', 'bg-lilac', 'bg-cream', 'bg-mint', 'bg-pink', 'bg-cor
     Word lists by length
   </h1>
   <p class="mt-6 max-w-3xl text-lg">
-    From two-letter Scrabble savers to fifteen-letter crossword monsters: every word in the
-    tournament lists, organised by length. Each list is sorted by how common the word is in
-    everyday English, so likely answers come first.
+    From two-letter Scrabble savers to twenty-letter crossword monsters: every word in the
+    major game dictionaries, organised by length. Each list is sorted by how common the word is
+    in everyday English, so likely answers come first.
   </p>
 
   <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -32,7 +33,7 @@ const blocks = ['bg-lime', 'bg-lilac', 'bg-cream', 'bg-mint', 'bg-pink', 'bg-cor
       LENGTHS.map((l, i) => (
         <li>
           <a
-            href={`/${sectionFor(l)}/`}
+            href={url(`/${sectionFor(l)}/`)}
             class="block h-full rounded-3xl p-6 text-blockink transition-transform hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             class:list={blocks[i % blocks.length]}
           >

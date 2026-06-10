@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/url';
 
 const title = 'About | Find Five Letter Words';
 const description =
-  'How Find Five Letter Words works: a free, frequency-sorted word finder covering 2-to-15-letter words across five dictionaries.';
+  'How Find Five Letter Words works: a free, frequency-sorted word finder covering 2-to-20-letter words across five dictionaries.';
 ---
 
 <BaseLayout title={title} description={description}>
@@ -25,12 +26,12 @@ const description =
     </p>
     <h2 class="mt-12 text-2xl font-snug tracking-display">Our word lists</h2>
     <p class="mt-4">
-      We cover every word from 2 to 15 letters across the major game dictionaries: ENABLE (the
+      We cover every word from 2 to 20 letters across the major game dictionaries: ENABLE (the
       public-domain list Words With Friends is built on), TWL06 (the North American Scrabble
       tournament list), SOWPODS/CSW (the international Scrabble list), and the curated Wordle answer
       pool. Offensive terms are filtered out, and each word carries its Scrabble point value. If you
       spot a missing or misplaced word,
-      <a href="/contact/" class="font-mid underline underline-offset-4">tell us</a>, and corrections
+      <a href={url('/contact/')} class="font-mid underline underline-offset-4">tell us</a>, and corrections
       will ship quickly.
     </p>
     <h2 class="mt-12 text-2xl font-snug tracking-display">Independence</h2>

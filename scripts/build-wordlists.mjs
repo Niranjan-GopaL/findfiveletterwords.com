@@ -37,7 +37,8 @@ const SOURCES = {
 };
 
 const MIN_LEN = 2;
-const MAX_LEN = 15;
+// 16-20 letter words exist only in ENABLE (Scrabble lists cap at the 15-square board).
+const MAX_LEN = 20;
 
 export const FLAG_ENABLE = 1;
 export const FLAG_TWL = 2;

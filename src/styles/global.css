@@ -164,19 +164,61 @@
   display: none;
 }
 
-/* Stat ribbon: scrolls continuously; wraps statically for reduced motion. */
+/*
+ * Stats ticker. Two display modes, chosen by the user (button on the strip,
+ * persisted as html[data-marquee]):
+ *   default        static, centered, truncates with an ellipsis if it overflows
+ *   data-marquee   the classic continuously scrolling marquee
+ * Reduced-motion users always get the static mode.
+ */
 @keyframes marquee-scroll {
   to {
     transform: translateX(-50%);
   }
 }
-@utility marquee-track {
+.marquee-track {
   display: flex;
+  width: 100%;
+  justify-content: center;
+  padding-inline: 2.5rem; /* keeps the text clear of the toggle button */
+}
+.marquee-track > span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.marquee-track > span + span {
+  display: none;
+}
+html[data-marquee='on'] .marquee-track {
   width: max-content;
+  justify-content: flex-start;
+  padding-inline: 0;
   animation: marquee-scroll 32s linear infinite;
-
-  @media (prefers-reduced-motion: reduce) {
+}
+html[data-marquee='on'] .marquee-track > span {
+  overflow: visible;
+  text-overflow: clip;
+}
+html[data-marquee='on'] .marquee-track > span::after {
+  content: ' · ';
+  white-space: pre;
+}
+html[data-marquee='on'] .marquee-track > span + span {
+  display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-marquee='on'] .marquee-track {
+    width: 100%;
+    justify-content: center;
+    padding-inline: 2.5rem;
     animation: none;
-    width: auto;
+  }
+  html[data-marquee='on'] .marquee-track > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  html[data-marquee='on'] .marquee-track > span + span {
+    display: none;
   }
 }

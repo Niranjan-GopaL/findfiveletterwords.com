@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/url';
 
 const title = 'Privacy Policy | Find Five Letter Words';
 const description =
@@ -52,7 +53,7 @@ const description =
     <h2 class="mt-12 text-2xl font-snug tracking-display">Contact</h2>
     <p class="mt-4">
       Questions about this policy? Reach us via the
-      <a href="/contact/" class="font-mid underline underline-offset-4">contact page</a>.
+      <a href={url('/contact/')} class="font-mid underline underline-offset-4">contact page</a>.
     </p>
   </section>
 </BaseLayout>
