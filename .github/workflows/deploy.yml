@@ -38,7 +38,8 @@ jobs:
         env:
           GITHUB_PAGES: 'true'
       - name: Block crawlers on the preview deploy
-        run: printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
