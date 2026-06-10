@@ -5,7 +5,9 @@ import WordGrid from '../../components/WordGrid.astro';
 import FaqBlock from '../../components/FaqBlock.astro';
 import LinkGroups from '../../components/LinkGroups.astro';
 import TipBox from '../../components/TipBox.astro';
+import LengthTabs from '../../components/LengthTabs.astro';
 import { allPages, type PageDef } from '../../lib/pages';
+import { lengthForSection } from '../../lib/words';
 
 export function getStaticPaths() {
   return allPages().map((page) => ({
@@ -19,8 +21,9 @@ interface Props {
 }
 
 const { page } = Astro.props;
+const len = lengthForSection(page.section)!;
 
-const sectionLabel = `${page.section.split('-')[0]}-Letter Words`;
+const sectionLabel = `${len}-Letter Words`;
 const crumbs = [
   { href: '/', label: 'Home' },
   { href: `/${page.section}/`, label: sectionLabel },
@@ -31,17 +34,19 @@ const crumbs = [
 <BaseLayout title={page.title} description={page.description}>
   <Breadcrumbs crumbs={crumbs} />
 
-  <h1
-    class="mt-8 font-display text-4xl uppercase tracking-display text-ink text-balance sm:text-5xl"
-  >
+  <h1 class="mt-8 text-4xl font-snug tracking-display text-balance sm:text-5xl">
     {page.h1}
   </h1>
 
   {
     page.intro.map((para, i) => (
-      <p class={i === 0 ? 'mt-6 max-w-3xl text-lg text-body-strong' : 'mt-4 max-w-3xl'}>{para}</p>
+      <p class={i === 0 ? 'mt-6 max-w-3xl text-lg' : 'mt-4 max-w-3xl font-soft'}>{para}</p>
     ))
   }
+
+  <div class="mt-8">
+    <LengthTabs current={len} />
+  </div>
 
   <WordGrid words={page.words} />
 

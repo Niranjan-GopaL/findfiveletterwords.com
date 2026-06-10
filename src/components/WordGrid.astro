@@ -1,4 +1,6 @@
 ---
+import { scrabbleScore } from '../lib/words';
+
 interface Props {
   words: string[];
 }
@@ -6,28 +8,23 @@ interface Props {
 const { words } = Astro.props;
 
 const COMMON = 20;
-const CHUNK = 240;
-
 const showCommonBand = words.length > COMMON * 2;
 const common = showCommonBand ? words.slice(0, COMMON) : [];
 const rest = showCommonBand ? words.slice(COMMON) : words;
 
-const chunks: string[][] = [];
-for (let i = 0; i < rest.length; i += CHUNK) chunks.push(rest.slice(i, i + CHUNK));
-
 const total = words.length.toLocaleString('en-US');
+const showToolbar = words.length > 40;
 ---
 
 {
   showCommonBand && (
     <section class="mt-10">
-      <h2 class="font-monoui text-[11px] uppercase tracking-caption text-muted">
-        Most common
-      </h2>
-      <ul class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
+      <h2 class="font-monoui text-xs uppercase tracking-eyebrow">Most common</h2>
+      <ul class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2">
         {common.map((w) => (
-          <li class="border border-hairline-strong px-1 py-2 text-center font-monoui text-sm uppercase tracking-[0.08em] text-ink">
-            {w}
+          <li class="wtile wtile-common">
+            <span>{w}</span>
+            <span>{scrabbleScore(w)}</span>
           </li>
         ))}
       </ul>
@@ -35,19 +32,157 @@ const total = words.length.toLocaleString('en-US');
   )
 }
 
-<section class="mt-10">
-  <h2 class="font-monoui text-[11px] uppercase tracking-caption tabular-nums text-muted">
-    {showCommonBand ? `All ${total} words — most common first` : `${total} words — most common first`}
-  </h2>
+<section class="mt-10" id="wg">
+  <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
+    <h2 class="font-monoui text-xs uppercase tracking-eyebrow">
+      {showCommonBand ? `All ${total} words` : `${total} words`}
+      <span class="sr-only">— the small number on each word is its Scrabble point value</span>
+    </h2>
+    <p id="wg-status" aria-live="polite" class="font-monoui text-xs uppercase tracking-eyebrow tabular-nums">
+    </p>
+  </div>
+
   {
-    chunks.map((chunk) => (
-      <ul class="cv-auto mt-4 grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
-        {chunk.map((w) => (
-          <li class="border border-hairline px-1 py-2 text-center font-monoui text-sm uppercase tracking-[0.08em] text-body">
-            {w}
-          </li>
-        ))}
-      </ul>
-    ))
+    showToolbar && (
+      <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3">
+        <label class="sr-only" for="wg-filter">
+          Filter this word list
+        </label>
+        <input
+          id="wg-filter"
+          type="search"
+          placeholder="Filter: type letters…"
+          autocomplete="off"
+          autocapitalize="none"
+          spellcheck="false"
+          class="h-11 w-full max-w-60 rounded-md border border-hairline bg-canvas px-3.5 text-base text-ink placeholder:text-ink/50 focus:border-ink focus:outline-none"
+        />
+        <div class="flex items-center gap-2">
+          <label for="wg-sort" class="font-monoui text-xs uppercase tracking-eyebrow">
+            Sort
+          </label>
+          <select
+            id="wg-sort"
+            class="h-11 rounded-md border border-hairline bg-canvas px-3 text-base text-ink focus:border-ink focus:outline-none"
+          >
+            <option value="common">Most common</option>
+            <option value="az">A–Z</option>
+            <option value="points">Highest points</option>
+          </select>
+        </div>
+        <label class="flex h-11 cursor-pointer items-center gap-2 text-base">
+          <input type="checkbox" id="wg-points" checked class="size-4 accent-(--t-ink)" />
+          Show points
+        </label>
+      </div>
+    )
   }
+
+  <ul
+    id="wg-list"
+    class="mt-4 grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2"
+    aria-label="Word list"
+  >
+    {
+      rest.map((w) => (
+        <li class="wtile" data-p={scrabbleScore(w)}>
+          <span>{w}</span>
+          <span>{scrabbleScore(w)}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="mt-4 font-monoui text-xs uppercase tracking-eyebrow">
+    Points use Scrabble US letter values
+  </p>
 </section>
+
+<script>
+  const grid = document.getElementById('wg');
+  const list = document.getElementById('wg-list');
+  if (grid && list) {
+    const lis = Array.from(list.querySelectorAll<HTMLLIElement>('li.wtile'));
+    const original = lis.slice();
+    const wordOf = (li: HTMLLIElement) => li.firstElementChild!.textContent!;
+    const filter = document.getElementById('wg-filter') as HTMLInputElement | null;
+    const sortSel = document.getElementById('wg-sort') as HTMLSelectElement | null;
+    const pointsCb = document.getElementById('wg-points') as HTMLInputElement | null;
+    const status = document.getElementById('wg-status');
+
+    const PREFS_KEY = 'fflw-list-prefs';
+    let prefs: { sort?: string; points?: boolean } = {};
+    try {
+      prefs = JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}');
+    } catch {
+      /* corrupted prefs reset below */
+    }
+    const savePrefs = () => {
+      try {
+        localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+      } catch {
+        /* private mode */
+      }
+    };
+
+    function applySort(mode: string) {
+      let ordered = original;
+      if (mode === 'az') {
+        ordered = original.slice().sort((a, b) => wordOf(a).localeCompare(wordOf(b)));
+      } else if (mode === 'points') {
+        ordered = original
+          .slice()
+          .sort(
+            (a, b) =>
+              Number(b.dataset.p) - Number(a.dataset.p) || wordOf(a).localeCompare(wordOf(b)),
+          );
+      }
+      const frag = document.createDocumentFragment();
+      ordered.forEach((li) => frag.appendChild(li));
+      list!.appendChild(frag);
+    }
+
+    function applyFilter(q: string) {
+      const needle = q.toLowerCase().replace(/[^a-z]/g, '');
+      let visible = 0;
+      for (const li of lis) {
+        const show = !needle || wordOf(li).includes(needle);
+        li.hidden = !show;
+        if (show) visible++;
+      }
+      if (status)
+        status.textContent = needle ? `${visible.toLocaleString('en-US')} match “${needle}”` : '';
+    }
+
+    function applyPoints(show: boolean) {
+      grid!.classList.toggle('points-off', !show);
+    }
+
+    if (sortSel) {
+      if (prefs.sort && prefs.sort !== 'common') {
+        sortSel.value = prefs.sort;
+        applySort(prefs.sort);
+      }
+      sortSel.addEventListener('change', () => {
+        prefs.sort = sortSel.value;
+        savePrefs();
+        applySort(sortSel.value);
+      });
+    }
+    if (pointsCb) {
+      if (prefs.points === false) {
+        pointsCb.checked = false;
+        applyPoints(false);
+      }
+      pointsCb.addEventListener('change', () => {
+        prefs.points = pointsCb.checked;
+        savePrefs();
+        applyPoints(pointsCb.checked);
+      });
+    }
+    let timer: number | undefined;
+    filter?.addEventListener('input', () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => applyFilter(filter.value), 60);
+    });
+  }
+</script>

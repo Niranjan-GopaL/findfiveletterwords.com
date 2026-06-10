@@ -10,16 +10,14 @@ const { groups } = Astro.props;
 
 {
   groups.map((g) => (
-    <section class="mt-16">
-      <h2 class="font-display text-2xl uppercase tracking-display text-ink text-balance">
-        {g.heading}
-      </h2>
-      <ul class="mt-6 flex flex-wrap gap-2">
+    <section class="mt-14">
+      <h2 class="text-xl font-snug tracking-display text-balance sm:text-2xl">{g.heading}</h2>
+      <ul class="mt-5 flex flex-wrap gap-2">
         {g.links.map((l) => (
           <li>
             <a
               href={l.href}
-              class="block border border-hairline px-3 py-2 font-monoui text-xs uppercase tracking-[0.12em] text-body transition-colors hover:border-ink hover:text-ink"
+              class="block rounded-full border border-hairline px-3.5 py-2 text-sm font-mid transition-colors hover:bg-soft"
             >
               {l.label}
             </a>

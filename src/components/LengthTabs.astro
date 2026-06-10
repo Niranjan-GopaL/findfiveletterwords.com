@@ -1,0 +1,30 @@
+---
+import { LENGTHS, sectionFor, type WordLength } from '../lib/words';
+
+interface Props {
+  current?: WordLength;
+}
+
+const { current } = Astro.props;
+---
+
+<nav aria-label="Word lengths" class="-mx-4 overflow-x-auto px-4">
+  <ul class="flex w-max gap-1.5 py-1">
+    {
+      LENGTHS.map((l) => (
+        <li>
+          <a
+            href={`/${sectionFor(l)}/`}
+            aria-current={l === current ? 'page' : undefined}
+            class:list={[
+              'block rounded-full px-3.5 py-1.5 text-sm font-mid whitespace-nowrap transition-colors',
+              l === current ? 'bg-inverse-canvas text-inverse-ink' : 'border border-hairline hover:bg-soft',
+            ]}
+          >
+            {l} letters
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>

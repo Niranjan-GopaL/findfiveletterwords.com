@@ -24,21 +24,19 @@ const jsonLd = {
 ---
 
 <nav aria-label="Breadcrumb" class="pt-8">
-  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 font-monoui text-[11px] uppercase tracking-caption">
+  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 font-monoui text-xs uppercase tracking-eyebrow">
     {
       crumbs.map((c, i) =>
         i === crumbs.length - 1 ? (
-          <li aria-current="page" class="text-muted-soft">
+          <li aria-current="page" class="text-ink/60">
             {c.label}
           </li>
         ) : (
           <li class="flex items-center gap-2">
-            <a class="text-muted transition-colors hover:text-ink" href={c.href}>
+            <a class="rounded-xs hover:underline" href={c.href}>
               {c.label}
             </a>
-            <span aria-hidden="true" class="text-muted-soft">
-              /
-            </span>
+            <span aria-hidden="true">/</span>
           </li>
         ),
       )

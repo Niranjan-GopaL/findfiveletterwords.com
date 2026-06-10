@@ -1,61 +1,102 @@
-@import '@fontsource/saira-condensed/400.css';
-@import '@fontsource/eb-garamond/400.css';
+@import '@fontsource-variable/inter';
 @import '@fontsource/jetbrains-mono/400.css';
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 /*
- * Design tokens from DESIGN.md (Bugatti system).
- * Monochrome discipline: no accent color besides --color-link.
- * Weight 400 everywhere — emphasis via size, tracking, and case only.
+ * Design tokens from DESIGN.md (Figma system): monochrome editorial frame
+ * (white canvas, black ink, pill CTAs) punctuated by pastel color blocks.
+ * Dark mode is our own derivation: near-black canvas, same pastel blocks
+ * ("sticky notes on a dark desk"), ink flips to off-white.
+ * Body hierarchy comes from weight, not gray text.
  */
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
 @theme {
   --color-*: initial;
-  --color-canvas: #000000;
-  --color-soft: #0d0d0d;
-  --color-card: #141414;
-  --color-elevated: #1f1f1f;
-  --color-hairline: #262626;
-  --color-hairline-strong: #3a3a3a;
-  --color-ink: #ffffff;
-  --color-body: #cccccc;
-  --color-body-strong: #e6e6e6;
-  --color-muted: #999999;
-  --color-muted-soft: #666666;
-  --color-link: #c3d9f3;
-  --color-warning: #d4a017;
-  --color-success: #5fa657;
+  /* pastel block palette — identical in both themes, always with block ink */
+  --color-lime: #dceeb1;
+  --color-lilac: #c5b0f4;
+  --color-cream: #f4ecd6;
+  --color-pink: #efd4d4;
+  --color-mint: #c8e6cd;
+  --color-coral: #f3c9b6;
+  --color-navy: #1f1d3d;
+  --color-magenta: #ff3d8b;
+  --color-success: #1ea64a;
+  --color-wordle-yellow: #c9b458;
+  --color-blockink: #111111;
+  --color-white: #ffffff;
 
-  --font-display: 'Saira Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-serifbody: 'EB Garamond', Garamond, 'Times New Roman', serif;
-  --font-monoui: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', monospace;
+  --font-sans: 'Inter Variable', 'SF Pro Display', system-ui, sans-serif;
+  --font-monoui: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  --tracking-display: 0.06em;
-  --tracking-caption: 0.18em;
-  --tracking-wordmark: 0.45em;
+  --font-weight-soft: 340;
+  --font-weight-mid: 480;
+  --font-weight-snug: 540;
+
+  --tracking-display: -0.02em;
+  --tracking-eyebrow: 0.05em;
+}
+
+/* Theme-switchable semantic tokens (utilities reference the live variable). */
+@theme inline {
+  --color-canvas: var(--t-canvas);
+  --color-ink: var(--t-ink);
+  --color-soft: var(--t-soft);
+  --color-hairline: var(--t-hairline);
+  --color-hairline-soft: var(--t-hairline-soft);
+  --color-inverse-canvas: var(--t-inverse-canvas);
+  --color-inverse-ink: var(--t-inverse-ink);
+}
+
+:root {
+  --t-canvas: #ffffff;
+  --t-ink: #000000;
+  --t-soft: #f7f7f5;
+  --t-hairline: #e6e6e6;
+  --t-hairline-soft: #f1f1f1;
+  --t-inverse-canvas: #000000;
+  --t-inverse-ink: #ffffff;
+}
+
+[data-theme='dark'] {
+  --t-canvas: #121214;
+  --t-ink: #f4f4f5;
+  --t-soft: #1c1c1f;
+  --t-hairline: #2e2e33;
+  --t-hairline-soft: #232327;
+  --t-inverse-canvas: #f4f4f5;
+  --t-inverse-ink: #121214;
 }
 
 @layer base {
-  html {
+  :root {
+    color-scheme: light;
+  }
+  [data-theme='dark'] {
     color-scheme: dark;
+  }
+  html {
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    background-color: var(--color-canvas);
-    color: var(--color-body);
-    font-family: var(--font-serifbody);
+    background-color: var(--t-canvas);
+    color: var(--t-ink);
+    font-family: var(--font-sans);
     font-size: 1.0625rem;
-    line-height: 1.6;
+    line-height: 1.5;
+    font-kerning: normal;
   }
   :focus-visible {
-    outline: 1px solid var(--color-ink);
+    outline: 2px solid var(--t-ink);
     outline-offset: 2px;
   }
-  ::selection {
-    background: var(--color-ink);
-    color: var(--color-canvas);
-  }
   a,
-  button {
+  button,
+  input,
+  select {
     touch-action: manipulation;
   }
 }
@@ -64,4 +105,38 @@
 @utility cv-auto {
   content-visibility: auto;
   contain-intrinsic-size: auto 480px;
+}
+
+/*
+ * Word tile — defined once here because list pages render up to ~30k tiles;
+ * keeping the per-tile markup tiny matters for page weight.
+ */
+@utility wtile {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem;
+  border-radius: 0.375rem;
+  background-color: var(--t-soft);
+  padding: 0.5rem 0.625rem;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 2.5rem;
+
+  & > span:first-child {
+    font-weight: 480;
+  }
+  & > span:last-child:not(:first-child) {
+    font-family: var(--font-monoui);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@utility wtile-common {
+  background-color: var(--color-mint);
+  color: var(--color-blockink);
+}
+
+.points-off li.wtile > span:last-child:not(:first-child) {
+  display: none;
 }

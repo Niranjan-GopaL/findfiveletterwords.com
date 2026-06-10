@@ -3,16 +3,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 const title = 'About — Find Five Letter Words';
 const description =
-  'How Find Five Letter Words works: a free, frequency-sorted word finder built on the public-domain ENABLE tournament dictionary.';
+  'How Find Five Letter Words works: a free, frequency-sorted word finder covering 2-to-15-letter words across five dictionaries.';
 ---
 
 <BaseLayout title={title} description={description}>
   <section class="mx-auto max-w-3xl pt-16">
-    <p class="font-monoui text-[11px] uppercase tracking-caption text-muted">About this site</p>
-    <h1 class="mt-6 font-display text-4xl uppercase tracking-display text-ink text-balance sm:text-5xl">
+    <p class="font-monoui text-xs uppercase tracking-eyebrow">About this site</p>
+    <h1 class="mt-5 text-4xl font-snug tracking-display text-balance sm:text-5xl">
       About Find Five Letter Words
     </h1>
-    <p class="mt-8 text-lg text-body-strong">
+    <p class="mt-8 text-lg">
       Find Five Letter Words is a free word finder and word-list library for puzzle players — the
       tool we wished existed every time a Wordle went to six guesses.
     </p>
@@ -23,20 +23,22 @@ const description =
       likely answers float to the top; the obscure tournament plays sink to the bottom, where
       Scrabble players can find them on purpose.
     </p>
-    <h2 class="mt-12 font-display text-2xl uppercase tracking-display text-ink">Our word list</h2>
+    <h2 class="mt-12 text-2xl font-snug tracking-display">Our word lists</h2>
     <p class="mt-4">
-      All words come from ENABLE — the public-domain tournament word list with more than 170,000
-      entries that games like Words With Friends are built on. We use the 4-, 5-, 6-, and 7-letter
-      words, filter out offensive terms, and rank what remains by everyday usage. If you spot a
-      missing or misplaced word, <a href="/contact/" class="text-link underline underline-offset-4">tell us</a> —
-      corrections ship quickly.
+      We cover every word from 2 to 15 letters across the major game dictionaries: ENABLE (the
+      public-domain list Words With Friends is built on), TWL06 (the North American Scrabble
+      tournament list), SOWPODS/CSW (the international Scrabble list), and the curated Wordle answer
+      pool. Offensive terms are filtered out, and each word carries its Scrabble point value. If you
+      spot a missing or misplaced word,
+      <a href="/contact/" class="font-mid underline underline-offset-4">tell us</a> — corrections ship
+      quickly.
     </p>
-    <h2 class="mt-12 font-display text-2xl uppercase tracking-display text-ink">Independence</h2>
+    <h2 class="mt-12 text-2xl font-snug tracking-display">Independence</h2>
     <p class="mt-4">
       This is an independent project. It is not affiliated with, endorsed by, or connected to the
-      New York Times, Wordle, Hasbro, Scrabble, or Zynga. Game names are used only to describe what
-      the tool is useful for. The site is free to use and supported by a small amount of
-      advertising.
+      New York Times, Wordle, Hasbro, Scrabble, Merriam-Webster, or Zynga. Game names are used only
+      to describe what the tool is useful for. The site is free to use and supported by a small
+      amount of advertising.
     </p>
   </section>
 </BaseLayout>

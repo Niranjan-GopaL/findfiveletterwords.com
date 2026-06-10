@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { LENGTHS, WORD_LISTS, formatCount, sectionFor } from '../lib/words';
 
 interface Props {
   title: string;
@@ -22,16 +23,18 @@ const websiteJsonLd = {
   name: 'Find Five Letter Words',
   url: Astro.site?.href,
   description:
-    'Free word finder and word lists for Wordle, Scrabble, and Words With Friends — sorted by frequency so common words come first.',
+    'Free word finder and word lists for Wordle, Scrabble, and Words With Friends — every 2-to-15-letter word, sorted by frequency so common words come first.',
 };
 
 const navLinks = [
   { href: '/', label: 'Word Finder' },
   { href: '/5-letter-words/', label: '5-Letter Words' },
-  { href: '/4-letter-words/', label: '4-Letter' },
-  { href: '/6-letter-words/', label: '6-Letter' },
-  { href: '/7-letter-words/', label: '7-Letter' },
+  { href: '/word-lists/', label: 'Word Lists' },
+  { href: '/blog/', label: 'Blog' },
 ];
+
+const totalWords = formatCount(LENGTHS.reduce((sum, l) => sum + WORD_LISTS[l].length, 0));
+const marquee = `${totalWords} words · 2 to 15 letters · sorted by frequency · Scrabble points on every word · free forever`;
 
 const year = new Date().getFullYear();
 ---
@@ -46,42 +49,46 @@ const year = new Date().getFullYear();
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <meta name="theme-color" content="#000000" />
+    <link rel="alternate" type="application/rss+xml" title="Find Five Letter Words blog" href="/rss.xml" />
+    <meta name="theme-color" content="#ffffff" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Find Five Letter Words" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary" />
+    <script is:inline>
+      (function () {
+        let theme = 'light';
+        try {
+          theme =
+            localStorage.getItem('fflw-theme') ??
+            (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        } catch (e) {}
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     {home && <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />}
   </head>
   <body>
     <a
       href="#main"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:font-monoui focus:text-xs focus:uppercase focus:tracking-caption focus:text-canvas"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-inverse-canvas focus:px-4 focus:py-2 focus:text-sm focus:font-mid focus:text-inverse-ink"
     >
       Skip to content
     </a>
 
-    <header class="border-b border-hairline">
-      <div class="mx-auto max-w-7xl px-4">
-        <div class="flex h-14 items-center justify-center">
-          <a
-            href="/"
-            class="font-display text-[11px] uppercase tracking-[0.3em] text-ink transition-colors hover:text-body-strong sm:text-sm sm:tracking-wordmark"
-            translate="no"
-          >
-            Find&nbsp;Five&nbsp;Letter&nbsp;Words
-          </a>
-        </div>
-        <nav aria-label="Primary" class="-mx-4 overflow-x-auto px-4">
-          <ul
-            class="flex justify-start gap-6 whitespace-nowrap pb-3 font-monoui text-xs uppercase tracking-caption sm:justify-center"
-          >
+    <header class="sticky top-0 z-40 border-b border-hairline bg-canvas">
+      <div class="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4">
+        <a href="/" class="rounded-xs text-lg font-snug tracking-display whitespace-nowrap" translate="no">
+          Find Five Letter Words
+        </a>
+        <nav aria-label="Primary" class="max-md:hidden">
+          <ul class="flex items-center gap-1">
             {
               navLinks.map((l) => (
                 <li>
-                  <a class="text-muted transition-colors hover:text-ink" href={l.href}>
+                  <a class="block rounded-full px-3.5 py-2 text-base font-mid transition-colors hover:bg-soft" href={l.href}>
                     {l.label}
                   </a>
                 </li>
@@ -89,52 +96,144 @@ const year = new Date().getFullYear();
             }
           </ul>
         </nav>
+        <div class="flex items-center gap-2">
+          <button
+            id="theme-toggle"
+            type="button"
+            aria-label="Toggle dark mode"
+            class="flex size-10 items-center justify-center rounded-full bg-soft transition-colors hover:bg-hairline-soft"
+          >
+            <svg class="icon-moon size-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <svg class="icon-sun size-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+            </svg>
+          </button>
+          <button
+            id="menu-toggle"
+            type="button"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="mobile-menu"
+            class="flex size-10 items-center justify-center rounded-full bg-soft transition-colors hover:bg-hairline-soft md:hidden"
+          >
+            <svg class="size-5" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16"></path>
+            </svg>
+          </button>
+        </div>
       </div>
+      <nav id="mobile-menu" aria-label="Mobile" hidden class="border-t border-hairline md:hidden">
+        <ul class="mx-auto max-w-7xl px-4 py-2">
+          {
+            navLinks.map((l) => (
+              <li>
+                <a class="block rounded-md px-2 py-3 text-lg font-mid hover:bg-soft" href={l.href}>
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </header>
+
+    <div class="flex h-9 items-center overflow-hidden bg-navy" aria-hidden="true">
+      <p class="whitespace-nowrap px-4 font-monoui text-xs uppercase tracking-eyebrow text-white">
+        {marquee}
+      </p>
+    </div>
 
     <main id="main" class="mx-auto max-w-7xl px-4">
       <slot />
     </main>
 
     <footer class="mt-24 border-t border-hairline">
-      <div class="mx-auto max-w-7xl px-4 py-16">
-        <div class="grid gap-10 sm:grid-cols-3">
-          <div>
-            <h2 class="font-monoui text-[11px] uppercase tracking-caption text-muted">Word lists</h2>
-            <ul class="mt-4 space-y-2 text-sm">
-              <li><a class="text-muted transition-colors hover:text-ink" href="/4-letter-words/">4-letter words</a></li>
-              <li><a class="text-muted transition-colors hover:text-ink" href="/5-letter-words/">5-letter words</a></li>
-              <li><a class="text-muted transition-colors hover:text-ink" href="/6-letter-words/">6-letter words</a></li>
-              <li><a class="text-muted transition-colors hover:text-ink" href="/7-letter-words/">7-letter words</a></li>
+      <div class="mx-auto max-w-7xl px-4 py-14">
+        <p class="text-2xl font-snug tracking-display" translate="no">Find Five Letter Words</p>
+        <div class="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="sm:col-span-2">
+            <h2 class="font-monoui text-xs uppercase tracking-eyebrow">Word lists by length</h2>
+            <ul class="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-base">
+              {
+                LENGTHS.map((l) => (
+                  <li>
+                    <a class="rounded-xs font-mid hover:underline" href={`/${sectionFor(l)}/`}>
+                      {l}-letter words
+                    </a>
+                  </li>
+                ))
+              }
             </ul>
           </div>
           <div>
-            <h2 class="font-monoui text-[11px] uppercase tracking-caption text-muted">Tools</h2>
-            <ul class="mt-4 space-y-2 text-sm">
-              <li><a class="text-muted transition-colors hover:text-ink" href="/">Word finder &amp; solver</a></li>
-              <li><a class="text-muted transition-colors hover:text-ink" href="/5-letter-words/with-no-repeated-letters/">Best starter words</a></li>
-              <li><a class="text-muted transition-colors hover:text-ink" href="/5-letter-words/without-vowels/">Words without vowels</a></li>
+            <h2 class="font-monoui text-xs uppercase tracking-eyebrow">Popular</h2>
+            <ul class="mt-4 space-y-2 text-base">
+              <li><a class="rounded-xs font-mid hover:underline" href="/">Word finder &amp; solver</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href="/5-letter-words/with-no-repeated-letters/">Best Wordle starter words</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href="/5-letter-words/without-vowels/">Words without vowels</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href="/2-letter-words/">Two-letter Scrabble words</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href="/blog/">Blog</a></li>
             </ul>
           </div>
           <div>
-            <h2 class="font-monoui text-[11px] uppercase tracking-caption text-muted">Site</h2>
-            <ul class="mt-4 space-y-2 text-sm">
-              <li><a class="text-muted transition-colors hover:text-ink" href="/about/">About</a></li>
-              <li><a class="text-muted transition-colors hover:text-ink" href="/privacy-policy/">Privacy policy</a></li>
-              <li><a class="text-muted transition-colors hover:text-ink" href="/contact/">Contact</a></li>
+            <h2 class="font-monoui text-xs uppercase tracking-eyebrow">Site</h2>
+            <ul class="mt-4 space-y-2 text-base">
+              <li><a class="rounded-xs font-mid hover:underline" href="/about/">About</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href="/privacy-policy/">Privacy policy</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href="/contact/">Contact</a></li>
+              <li><a class="rounded-xs font-mid hover:underline" href="/rss.xml">RSS feed</a></li>
             </ul>
           </div>
         </div>
-        <div class="mt-16 text-center">
-          <p class="font-display text-xs uppercase tracking-wordmark text-ink" translate="no">
-            Find&nbsp;Five&nbsp;Letter&nbsp;Words
-          </p>
-          <p class="mt-4 text-sm text-muted-soft">
-            © {year} findfiveletterwords.com · Word lists derived from the public-domain ENABLE
-            dictionary. Not affiliated with the New York Times or Wordle.
-          </p>
-        </div>
+        <p class="mt-12 border-t border-hairline-soft pt-6 font-monoui text-xs uppercase tracking-eyebrow">
+          © {year} findfiveletterwords.com · Not affiliated with the New York Times, Wordle, or Scrabble.
+        </p>
       </div>
     </footer>
+
+    <style>
+      html[data-theme='dark'] .icon-sun {
+        display: block;
+      }
+      html[data-theme='dark'] .icon-moon {
+        display: none;
+      }
+      html:not([data-theme='dark']) .icon-sun {
+        display: none;
+      }
+    </style>
+
+    <script>
+      const themeBtn = document.getElementById('theme-toggle');
+      const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+      function syncThemeMeta() {
+        if (themeMeta)
+          themeMeta.content =
+            document.documentElement.dataset.theme === 'dark' ? '#121214' : '#ffffff';
+      }
+      syncThemeMeta();
+      themeBtn?.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try {
+          localStorage.setItem('fflw-theme', next);
+        } catch {
+          /* private mode */
+        }
+        syncThemeMeta();
+      });
+
+      const menuBtn = document.getElementById('menu-toggle');
+      const menu = document.getElementById('mobile-menu');
+      menuBtn?.addEventListener('click', () => {
+        const open = menu!.hidden;
+        menu!.hidden = !open;
+        menuBtn.setAttribute('aria-expanded', String(open));
+        menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      });
+    </script>
   </body>
 </html>

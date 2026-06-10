@@ -1,5 +1,6 @@
 import {
   ALPHABET,
+  CONTAINS_MAX_LEN,
   LENGTH_NAMES,
   LENGTHS,
   VOWELS,
@@ -63,7 +64,7 @@ const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seven
 
 /* ------------------------------------------------------------------ */
 /* Copy templates — varied per page via slug hash so phrasing differs  */
-/* across the site instead of repeating one sentence 1,300 times.      */
+/* across the site instead of repeating one sentence 2,000 times.      */
 /* ------------------------------------------------------------------ */
 
 interface FamilyCopy {
@@ -73,18 +74,26 @@ interface FamilyCopy {
   phraseLower: string;
 }
 
+/** The games worth mentioning for a given word length. */
+function gamesFor(len: WordLength): string {
+  if (len === 5) return 'Wordle, Scrabble, and Words With Friends';
+  if (len <= 8) return 'Scrabble, Words With Friends, and other word games';
+  return 'Scrabble, crosswords, and other word puzzles';
+}
+
 function introTemplates(len: WordLength, c: FamilyCopy, words: string[], seed: string): string[] {
   const n = formatCount(words.length);
   const name = LENGTH_NAMES[len];
   const top3 = topWords(words, 3);
+  const games = gamesFor(len);
   const variants: string[][] = [
     [
-      `Looking for ${name}-letter words ${c.phraseLower}? There are ${n} of them in the tournament word list, and every one is on this page. The most common — ${top3} — sit right at the top.`,
-      `Unlike alphabetical lists that bury likely answers in the middle, this list is sorted by how often each word appears in everyday English. Scan the first rows for probable puzzle answers; dig deeper for rare, high-scoring plays.`,
+      `Looking for ${name}-letter words ${c.phraseLower}? There are ${n} of them in the tournament word lists, and every one is on this page. The most common — ${top3} — sit right at the top.`,
+      `Unlike alphabetical lists that bury likely answers in the middle, this list is sorted by how often each word appears in everyday English. Scan the first rows for probable answers; dig deeper for rare, high-scoring plays.`,
     ],
     [
       `There are ${n} ${name}-letter words ${c.phraseLower}. The list below ranks them by real-world frequency, so everyday words like ${top3} appear before the tournament obscurities.`,
-      `Every entry comes from the public-domain ENABLE list used by tournament word games, so you can play each one with confidence.`,
+      `Every entry comes from the tournament word lists used in ${games}, so you can play each one with confidence.`,
     ],
     [
       `Our word finder knows ${n} ${name}-letter words ${c.phraseLower}. Common picks such as ${top3} lead the list, which makes it faster to spot the word your puzzle is hiding.`,
@@ -94,12 +103,21 @@ function introTemplates(len: WordLength, c: FamilyCopy, words: string[], seed: s
   return pick(variants, seed);
 }
 
-const TIPS = [
+const TIPS_WORDLE = [
   'Solving Wordle? Answers are almost always everyday words, so start from the top of this list — the frequency sort puts likely answers where you can see them.',
-  'For Scrabble or Words With Friends, scroll to the bottom: the rare words live there, and rare letters usually mean bigger scores.',
-  'Narrow things down faster with the word finder on the home page — lock in the letters you know and it filters this entire dictionary in an instant.',
+  'Stuck on yellows? A repeated letter is often the trick. Check the double-letter list, then come back and scan the common band again.',
   'If you still have several candidates, prefer words with distinct, common letters — each guess then eliminates more of the alphabet.',
 ];
+const TIPS_GENERAL = [
+  'For Scrabble or Words With Friends, scroll to the bottom: the rare words live there, and rare letters usually mean bigger scores.',
+  'Use the sort control above the list to flip between common-first, alphabetical, and highest-scoring order.',
+  'Narrow things down faster with the word finder on the home page — lock in the letters you know and it filters the entire dictionary in an instant.',
+];
+
+function pickTip(len: WordLength, seed: string): string {
+  const pool = len === 5 ? [...TIPS_WORDLE, ...TIPS_GENERAL] : TIPS_GENERAL;
+  return pick(pool, seed);
+}
 
 function faqsFor(len: WordLength, c: FamilyCopy, words: string[], seed: string): Faq[] {
   const n = formatCount(words.length);
@@ -108,22 +126,24 @@ function faqsFor(len: WordLength, c: FamilyCopy, words: string[], seed: string):
   const top5 = topWords(words, 5);
   const validity: Faq[] = [
     {
-      q: 'Are these valid Wordle words?',
-      a: `Nearly all of them. Wordle draws its answers from a curated list of common five-letter words, but it accepts almost any dictionary word as a guess — including the words on this page.`,
-    },
-    {
       q: 'Can I play these words in Scrabble?',
-      a: 'Yes. They come from ENABLE, the public-domain tournament word list that games like Words With Friends are built on, so they are playable in Scrabble-style games.',
+      a: 'Yes. The list combines ENABLE and the North American tournament list (TWL), so these words are playable in Scrabble-style games, including Words With Friends.',
     },
     {
       q: 'Why are the words in this order?',
-      a: 'Words are ranked by how often they appear in a trillion-word corpus of written English — most common first. That surfaces likely puzzle answers instead of hiding them mid-alphabet.',
+      a: 'Words are ranked by how often they appear in a trillion-word corpus of written English — most common first. That surfaces likely puzzle answers instead of hiding them mid-alphabet. Use the sort control to switch to alphabetical or points order.',
     },
   ];
+  if (len === 5) {
+    validity.push({
+      q: 'Are these valid Wordle words?',
+      a: 'Nearly all of them. Wordle draws its answers from a curated list of common five-letter words, but it accepts almost any dictionary word as a guess — including the words on this page.',
+    });
+  }
   return [
     {
       q: `How many ${name}-letter words are there ${c.phraseLower}?`,
-      a: `There are ${n} ${name}-letter words ${c.phraseLower} in the ENABLE tournament word list. The most common are ${top3}.`,
+      a: `There are ${n} ${name}-letter words ${c.phraseLower} in the tournament word lists. The most common are ${top3}.`,
     },
     {
       q: `What are common ${name}-letter words ${c.phraseLower}?`,
@@ -136,10 +156,11 @@ function faqsFor(len: WordLength, c: FamilyCopy, words: string[], seed: string):
 function descriptionFor(len: WordLength, c: FamilyCopy, words: string[], seed: string): string {
   const n = formatCount(words.length);
   const name = LENGTH_NAMES[len];
+  const games = gamesFor(len);
   const variants = [
-    `All ${n} ${name}-letter words ${c.phraseLower}, sorted with the most common first. Free word list and finder for Wordle, Scrabble, and Words With Friends.`,
-    `Browse ${n} ${name}-letter words ${c.phraseLower} — common words first, rare ones last. Perfect for cracking today's puzzle or planning a Scrabble play.`,
-    `Complete list of ${n} ${name}-letter words ${c.phraseLower}, ranked by everyday usage. Find likely Wordle answers fast, free, with no sign-up.`,
+    `All ${n} ${name}-letter words ${c.phraseLower}, sorted with the most common first. Free word list and finder for ${games}.`,
+    `Browse ${n} ${name}-letter words ${c.phraseLower} — common words first, rare ones last. Perfect for cracking today's puzzle or planning a high-scoring play.`,
+    `Complete list of ${n} ${name}-letter words ${c.phraseLower}, ranked by everyday usage, with Scrabble points for every word. Free, no sign-up.`,
   ];
   return pick(variants, seed);
 }
@@ -166,7 +187,7 @@ function buildPage(
     title: overrides.title ?? `${h1} — ${formatCount(words.length)} Words`,
     description: overrides.description ?? descriptionFor(len, copy, words, seed),
     intro: overrides.intro ?? introTemplates(len, copy, words, seed),
-    tip: pick(TIPS, seed + 't'),
+    tip: pickTip(len, seed + 't'),
     words,
     faqs: overrides.faqs ?? faqsFor(len, copy, words, seed),
     linkGroups,
@@ -189,9 +210,9 @@ interface FamilyIndex {
   startingWith: Map<string, string[]>;
   endingIn: Map<string, string[]>;
   withLetter: Map<string, string[]>;
-  pairs: Map<string, string[]>; // key "ae" (alphabetical)
-  startEnd: Map<string, string[]>; // key "se" (start, end)
-  positions: Map<string, string[]>; // key "e2" (letter, zero-based-pos→1-based label handled later)
+  pairs: Map<string, string[]>; // key "ae" (alphabetical), 5-letter only
+  startEnd: Map<string, string[]>; // key "se" (start, end), 5-letter only
+  positions: Map<string, string[]>; // key "e2", 5-letter only
 }
 
 function indexFamilies(len: WordLength): FamilyIndex {
@@ -209,23 +230,25 @@ function indexFamilies(len: WordLength): FamilyIndex {
     if (!arr) map.set(key, (arr = []));
     arr.push(w);
   };
+  const wantContains = len <= CONTAINS_MAX_LEN;
   for (const w of words) {
     push(idx.startingWith, w[0], w);
     push(idx.endingIn, w[len - 1], w);
-    const seen = new Set<string>();
-    for (const ch of w) {
-      if (!seen.has(ch)) {
-        seen.add(ch);
-        push(idx.withLetter, ch, w);
+    if (wantContains) {
+      const seen = new Set<string>();
+      for (const ch of w) {
+        if (!seen.has(ch)) {
+          seen.add(ch);
+          push(idx.withLetter, ch, w);
+        }
       }
-    }
-    if (len === 5) {
-      push(idx.startEnd, w[0] + w[4], w);
-      const uniq = [...seen].sort();
-      for (let i = 0; i < uniq.length; i++)
-        for (let j = i + 1; j < uniq.length; j++) push(idx.pairs, uniq[i] + uniq[j], w);
-      // interior positions 2..4 (zero-based 1..3)
-      for (let p = 1; p <= 3; p++) push(idx.positions, w[p] + String(p + 1), w);
+      if (len === 5) {
+        push(idx.startEnd, w[0] + w[4], w);
+        const uniq = [...seen].sort();
+        for (let i = 0; i < uniq.length; i++)
+          for (let j = i + 1; j < uniq.length; j++) push(idx.pairs, uniq[i] + uniq[j], w);
+        for (let p = 1; p <= 3; p++) push(idx.positions, w[p] + String(p + 1), w);
+      }
     }
   }
   return idx;
@@ -249,7 +272,6 @@ function ok(words: string[] | undefined): words is string[] {
 function buildAllPages(len: WordLength): PageDef[] {
   const idx = familiesFor(len);
   const section = sectionFor(len);
-  const name = LENGTH_NAMES[len];
   const Name = `${len}-Letter`;
   const pages: PageDef[] = [];
   const hub: Link = { href: href(section), label: `All ${Name} Word Lists` };
@@ -272,11 +294,15 @@ function buildAllPages(len: WordLength): PageDef[] {
               : `${l}-Letter Words With ${up(c)}`,
       }));
 
-  const neighbours = (prefix: string, c: string, exists: (x: string) => boolean, text: (x: string) => string): Link[] => {
+  const neighbours = (
+    prefix: string,
+    c: string,
+    exists: (x: string) => boolean,
+    text: (x: string) => string,
+  ): Link[] => {
     const i = ALPHABET.indexOf(c);
     const out: Link[] = [];
     for (const d of [25, 1]) {
-      // previous and next letter, wrapping
       const x = ALPHABET[(i + d) % 26];
       if (exists(x)) out.push({ href: href(section, `${prefix}${x}`), label: text(x) });
     }
@@ -294,12 +320,15 @@ function buildAllPages(len: WordLength): PageDef[] {
       if (se.length) groups.push({ heading: `${Name} words starting with ${up(c)}, by last letter`, links: se });
     }
     groups.push({
+      heading: `Starting with ${up(c)} in other lengths`,
+      links: crossLength('starting-with', c),
+    });
+    groups.push({
       heading: 'Related word lists',
       links: [
         ...neighbours('starting-with-', c, (x) => ok(idx.startingWith.get(x)), (x) => `${Name} Words Starting With ${up(x)}`),
         ...(ok(idx.endingIn.get(c)) ? [{ href: href(section, `ending-in-${c}`), label: `${Name} Words Ending in ${up(c)}` }] : []),
         ...(ok(idx.withLetter.get(c)) ? [{ href: href(section, `with-${c}`), label: `${Name} Words With ${up(c)}` }] : []),
-        ...crossLength('starting-with', c),
         hub,
       ],
     });
@@ -313,26 +342,29 @@ function buildAllPages(len: WordLength): PageDef[] {
     const copy: FamilyCopy = { phrase: `Ending in ${up(c)}`, phraseLower: `that end in ${up(c)}` };
     const groups: LinkGroup[] = [];
     if (len === 5) {
-      const se = letterChips(section, '', ALPHABET, (x) => ok(idx.startEnd.get(x + c)), (x) => `Starting with ${up(x)}`).map((l) => ({
-        ...l,
-        href: href(section, `starting-with-${l.label.slice(-1).toLowerCase()}-ending-in-${c}`),
+      const se = ALPHABET.filter((x) => ok(idx.startEnd.get(x + c))).map((x) => ({
+        href: href(section, `starting-with-${x}-ending-in-${c}`),
+        label: `Starting with ${up(x)}`,
       }));
       if (se.length) groups.push({ heading: `${Name} words ending in ${up(c)}, by first letter`, links: se });
     }
+    groups.push({
+      heading: `Ending in ${up(c)} in other lengths`,
+      links: crossLength('ending-in', c),
+    });
     groups.push({
       heading: 'Related word lists',
       links: [
         ...neighbours('ending-in-', c, (x) => ok(idx.endingIn.get(x)), (x) => `${Name} Words Ending in ${up(x)}`),
         ...(ok(idx.startingWith.get(c)) ? [{ href: href(section, `starting-with-${c}`), label: `${Name} Words Starting With ${up(c)}` }] : []),
         ...(ok(idx.withLetter.get(c)) ? [{ href: href(section, `with-${c}`), label: `${Name} Words With ${up(c)}` }] : []),
-        ...crossLength('ending-in', c),
         hub,
       ],
     });
     pages.push(buildPage(len, `ending-in-${c}`, `${Name} Words Ending in ${up(c)}`, copy, words, groups));
   }
 
-  /* --- with-X (containing) ---------------------------------------- */
+  /* --- with-X (containing, lengths ≤ CONTAINS_MAX_LEN) ------------- */
   for (const c of ALPHABET) {
     const words = idx.withLetter.get(c);
     if (!ok(words)) continue;
@@ -597,20 +629,15 @@ export function hubFor(len: WordLength): HubData {
   const idx = familiesFor(len);
   const section = sectionFor(len);
   const Name = `${len}-Letter`;
-  const groups: LinkGroup[] = [
-    {
-      heading: `${Name} words starting with…`,
-      links: letterChips(section, 'starting-with-', ALPHABET, (c) => ok(idx.startingWith.get(c)), up),
-    },
-    {
-      heading: `${Name} words ending in…`,
-      links: letterChips(section, 'ending-in-', ALPHABET, (c) => ok(idx.endingIn.get(c)), up),
-    },
-    {
-      heading: `${Name} words containing…`,
-      links: letterChips(section, 'with-', ALPHABET, (c) => ok(idx.withLetter.get(c)), up),
-    },
-  ];
+  const groups: LinkGroup[] = [];
+
+  const starting = letterChips(section, 'starting-with-', ALPHABET, (c) => ok(idx.startingWith.get(c)), up);
+  if (starting.length) groups.push({ heading: `${Name} words starting with…`, links: starting });
+  const ending = letterChips(section, 'ending-in-', ALPHABET, (c) => ok(idx.endingIn.get(c)), up);
+  if (ending.length) groups.push({ heading: `${Name} words ending in…`, links: ending });
+  const containing = letterChips(section, 'with-', ALPHABET, (c) => ok(idx.withLetter.get(c)), up);
+  if (containing.length) groups.push({ heading: `${Name} words containing…`, links: containing });
+
   if (len === 5) {
     groups.push({
       heading: 'Popular letter combinations',
@@ -636,7 +663,7 @@ export function hubFor(len: WordLength): HubData {
     len,
     h1: `${Name} Word Lists`,
     title: `${Name} Words — Lists by Starting Letter, Ending & Pattern`,
-    description: `Every ${LENGTH_NAMES[len]}-letter word list in one place: ${count} words organised by starting letter, ending letter, contained letters, and patterns. Free for Wordle & Scrabble.`,
+    description: `Every ${LENGTH_NAMES[len]}-letter word list in one place: ${count} words organised by starting letter, ending letter, and pattern, with Scrabble points. Free word finder included.`,
     wordCount: WORD_LISTS[len].length,
     groups,
   };
