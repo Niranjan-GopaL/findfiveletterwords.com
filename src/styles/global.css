@@ -5,28 +5,19 @@
 
 /*
  * Design tokens from DESIGN.md (Figma system): monochrome editorial frame
- * (white canvas, black ink, pill CTAs) punctuated by pastel color blocks.
- * Dark mode is our own derivation: near-black canvas, same pastel blocks
- * ("sticky notes on a dark desk"), ink flips to off-white.
- * Body hierarchy comes from weight, not gray text.
+ * punctuated by pastel color blocks. Both themes soften the extremes:
+ * light mode uses near-black ink on white, dark mode uses muted deep
+ * versions of the pastel blocks (bright pastels glow on dark canvases).
  */
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 @theme {
   --color-*: initial;
-  /* pastel block palette — identical in both themes, always with block ink */
-  --color-lime: #dceeb1;
-  --color-lilac: #c5b0f4;
-  --color-cream: #f4ecd6;
-  --color-pink: #efd4d4;
-  --color-mint: #c8e6cd;
-  --color-coral: #f3c9b6;
   --color-navy: #1f1d3d;
   --color-magenta: #ff3d8b;
   --color-success: #1ea64a;
   --color-wordle-yellow: #c9b458;
-  --color-blockink: #111111;
   --color-white: #ffffff;
 
   --font-sans: 'Inter Variable', 'SF Pro Display', system-ui, sans-serif;
@@ -49,26 +40,47 @@
   --color-hairline-soft: var(--t-hairline-soft);
   --color-inverse-canvas: var(--t-inverse-canvas);
   --color-inverse-ink: var(--t-inverse-ink);
+  --color-lime: var(--t-lime);
+  --color-lilac: var(--t-lilac);
+  --color-cream: var(--t-cream);
+  --color-pink: var(--t-pink);
+  --color-mint: var(--t-mint);
+  --color-coral: var(--t-coral);
+  --color-blockink: var(--t-blockink);
 }
 
 :root {
   --t-canvas: #ffffff;
-  --t-ink: #000000;
+  --t-ink: #1b1b1f;
   --t-soft: #f7f7f5;
   --t-hairline: #e6e6e6;
   --t-hairline-soft: #f1f1f1;
-  --t-inverse-canvas: #000000;
-  --t-inverse-ink: #ffffff;
+  --t-inverse-canvas: #1b1b1f;
+  --t-inverse-ink: #f7f7f5;
+  --t-lime: #dceeb1;
+  --t-lilac: #c5b0f4;
+  --t-cream: #f4ecd6;
+  --t-pink: #efd4d4;
+  --t-mint: #c8e6cd;
+  --t-coral: #f3c9b6;
+  --t-blockink: #1c1c1e;
 }
 
 [data-theme='dark'] {
-  --t-canvas: #121214;
-  --t-ink: #f4f4f5;
-  --t-soft: #1c1c1f;
-  --t-hairline: #2e2e33;
-  --t-hairline-soft: #232327;
-  --t-inverse-canvas: #f4f4f5;
-  --t-inverse-ink: #121214;
+  --t-canvas: #141417;
+  --t-ink: #e4e4e8;
+  --t-soft: #1d1d22;
+  --t-hairline: #2e2e34;
+  --t-hairline-soft: #232328;
+  --t-inverse-canvas: #e4e4e8;
+  --t-inverse-ink: #141417;
+  --t-lime: #31391f;
+  --t-lilac: #2e294a;
+  --t-cream: #383225;
+  --t-pink: #3a2c2e;
+  --t-mint: #233629;
+  --t-coral: #3a2d24;
+  --t-blockink: #e6e6ea;
 }
 
 @layer base {
@@ -80,6 +92,16 @@
   }
   html {
     -webkit-tap-highlight-color: transparent;
+  }
+  /* Reader-selectable text size; everything content-sized uses rem. */
+  html[data-fontsize='lg'] {
+    font-size: 112.5%;
+  }
+  html[data-fontsize='xl'] {
+    font-size: 125%;
+  }
+  html[data-fontsize='xxl'] {
+    font-size: 137.5%;
   }
   body {
     background-color: var(--t-canvas);
@@ -96,7 +118,8 @@
   a,
   button,
   input,
-  select {
+  select,
+  summary {
     touch-action: manipulation;
   }
 }
@@ -108,7 +131,7 @@
 }
 
 /*
- * Word tile — defined once here because list pages render up to ~30k tiles;
+ * Word tile, defined once here because list pages render up to ~30k tiles;
  * keeping the per-tile markup tiny matters for page weight.
  */
 @utility wtile {
@@ -127,16 +150,33 @@
   }
   & > span:last-child:not(:first-child) {
     font-family: var(--font-monoui);
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-variant-numeric: tabular-nums;
   }
 }
 
 @utility wtile-common {
-  background-color: var(--color-mint);
-  color: var(--color-blockink);
+  background-color: var(--t-mint);
+  color: var(--t-blockink);
 }
 
 .points-off li.wtile > span:last-child:not(:first-child) {
   display: none;
+}
+
+/* Stat ribbon: scrolls continuously; wraps statically for reduced motion. */
+@keyframes marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@utility marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 32s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    width: auto;
+  }
 }

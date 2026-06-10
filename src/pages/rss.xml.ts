@@ -5,7 +5,7 @@ import type { APIContext } from 'astro';
 export async function GET(context: APIContext) {
   const posts = await getCollection('blog');
   return rss({
-    title: 'Find Five Letter Words — Blog',
+    title: 'Find Five Letter Words Blog',
     description:
       'Wordle strategy, Scrabble word lists worth memorizing, and dictionary deep-dives.',
     site: context.site!,

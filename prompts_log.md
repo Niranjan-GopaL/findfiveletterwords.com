@@ -271,7 +271,7 @@ label `label` element should have an associated control and a text content.
 can you think of better way to do this ?
 - I want FAQs to be foldable ( that's better right ? would it make it harder for the crawlers ? )
 - replace or remove all the emdashes with something appropriate
-- should we go from " Find 5 letter words " to "Find Any letter words" as the theme and intention ? Is SEO better for 5 letter words ? 
+- should we go from " Find 5 letter words " to "Find Any letter words" as the theme and intention ? Is SEO better for 5 letter words ? I saw your favicon looked really nice, but I want to confirm what is the best thing to do.
 how can we make sure we add all the keywords will point to the same website ?
 - the marque const marquee = `${totalWords} words · 2 to 15 letters · sorted by frequency · Scrabble points on every word · free forever`; this gets clipped in different view ports this gets clipped in different view ports.
 
@@ -287,7 +287,7 @@ how can we make sure we add all the keywords will point to the same website ?
 - We are showing wayy too many words below the Finder, it's fine in desktop but for smaller  viewports, they would have to scroll a lot more
 - can we add a lot of keyboard shotcuts and give some very small info to user about these keyboard shortcuts, I don't want the user to click a button or anything. We have to do it in a way that does not annoy the user but they will understand how to pull up all the keyboard shortcut lists
 - Make a list of other important SEO optimizations we can do. 
-- The pink in the finder in white and dark mode is bit akward 
+- The pink in the finder in white and dark mode is bit akward. Actually all the pastelly light colors in dark mode is kinda akward, not easy on the eyes, the contrast as well. Like the whtie and black itself is a bit too contrastry.
 - Also can we make something new : I have this idea, let's customize ctrl + f. Like if a user is doing ctrl + f, I don't want to render the google chrome's find bar, instead of that we will show our find box. Kinda like an easter eggs.
 Will easter eggs increase SEO ?
 - If I publish this in github pages and share with my friends to get feedbacck, and after that if I unpublish and deploy using cloudflare on the domain I bought, do you think it'll cause any issue of duplicate websites ? 

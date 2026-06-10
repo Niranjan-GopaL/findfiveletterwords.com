@@ -1,18 +1,18 @@
 ---
 title: 'Scrabble vs Words With Friends: The Dictionary Differences That Cost You Points'
-description: 'TWL, CSW, ENABLE — three dictionaries, three different answers to "is that a word?". Where they disagree, and which one your game actually uses.'
+description: 'TWL, CSW, ENABLE: three dictionaries, three different answers to "is that a word?". Where they disagree, and which one your game actually uses.'
 pubDate: 2026-06-11
 ---
 
-You played a perfectly good word in Words With Friends. Your friend played the *same word* in Scrabble and got challenged off the board. Both outcomes were correct — because the two games don't speak the same dictionary.
+You played a perfectly good word in Words With Friends. Your friend played the *same word* in Scrabble and got challenged off the board. Both outcomes were correct, because the two games don't speak the same dictionary.
 
 ## The three lists that matter
 
 **TWL (Tournament Word List).** The North American Scrabble standard, maintained for club and tournament play in the US and Canada. About 180,000 words. If you learned "QI is valid" from a Scrabble app, you learned TWL.
 
-**CSW (Collins Scrabble Words, a.k.a. SOWPODS).** The international standard, used in tournaments everywhere outside North America — and it's noticeably bigger, around 280,000 words. CSW swallows TWL nearly whole and adds tens of thousands of British and international entries.
+**CSW (Collins Scrabble Words, a.k.a. SOWPODS).** The international standard, used in tournaments everywhere outside North America, and it's noticeably bigger, around 280,000 words. CSW swallows TWL nearly whole and adds tens of thousands of British and international entries.
 
-**ENABLE.** A public-domain list from the 1990s that became the seed for many digital word games — most famously **Words With Friends**, whose dictionary is essentially ENABLE plus a sprinkle of additions the developers made over the years.
+**ENABLE.** A public-domain list from the 1990s that became the seed for many digital word games, most famously **Words With Friends**, whose dictionary is essentially ENABLE plus a sprinkle of additions the developers made over the years.
 
 ## Where they actually disagree
 
@@ -22,7 +22,7 @@ The disagreements cluster in exactly the words competitive players care about:
 - **British vocabulary.** CSW accepts thousands of words TWL refuses. If your opponent plays something that looks like it escaped from a P.G. Wodehouse novel, they're probably playing CSW.
 - **Recent additions.** Each list updates on its own schedule, so new slang lands at different times in each.
 
-The practical upshot: **"is it a word?" has no answer without naming the dictionary.** That's why the finder on our home page has a dictionary switch — All, Wordle answers, Words With Friends, Scrabble US, Scrabble UK — instead of pretending one list rules them all.
+The practical upshot: **"is it a word?" has no answer without naming the dictionary.** That's why the finder on our home page has a dictionary switch (All, Wordle answers, Words With Friends, Scrabble US, Scrabble UK) instead of pretending one list rules them all.
 
 ## Points differ too, not just words
 

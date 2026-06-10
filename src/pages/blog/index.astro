@@ -7,7 +7,7 @@ const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-const title = 'Word Game Blog — Strategy, Word Lists & Dictionary Guides';
+const title = 'Word Game Blog: Strategy, Word Lists & Dictionary Guides';
 const description =
   'Wordle strategy, Scrabble word lists worth memorizing, and dictionary deep-dives from Find Five Letter Words.';
 
@@ -27,7 +27,7 @@ const blocks = ['bg-mint', 'bg-cream', 'bg-pink', 'bg-lilac', 'bg-lime', 'bg-cor
     Word game blog
   </h1>
   <p class="mt-6 max-w-3xl text-lg">
-    Strategy guides, lists worth memorizing, and the occasional dictionary rabbit hole — written
+    Strategy guides, lists worth memorizing, and the occasional dictionary rabbit hole, all written
     around the same frequency-sorted word data that powers the finder.
   </p>
 

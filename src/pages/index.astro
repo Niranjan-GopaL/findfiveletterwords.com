@@ -7,7 +7,7 @@ import { ALPHABET, LENGTHS, WORD_LISTS, formatCount, sectionFor } from '../lib/w
 
 const totalWords = formatCount(LENGTHS.reduce((sum, l) => sum + WORD_LISTS[l].length, 0));
 
-const title = 'Find Five Letter Words — Free Word Finder for Wordle & Scrabble';
+const title = 'Find Five Letter Words: Free Word Finder for Wordle & Scrabble';
 const description = `Free word finder for Wordle, Scrabble & Words With Friends. Filter ${totalWords} words (2–15 letters) by position and letters, across five dictionaries, with points.`;
 
 const specialSlugs = [
@@ -47,7 +47,7 @@ const browseGroups: LinkGroup[] = [
 const faqs = [
   {
     q: 'What dictionaries does Find Five Letter Words use?',
-    a: `Five: the combined tournament list (default), the curated Wordle answer list, Words With Friends (ENABLE), Scrabble US (TWL06), and Scrabble UK (SOWPODS) — ${totalWords} words of 2 to 15 letters in total. Switch between them in the finder settings.`,
+    a: `Five: the combined tournament list (default), the curated Wordle answer list, Words With Friends (ENABLE), Scrabble US (TWL06), and Scrabble UK (SOWPODS): ${totalWords} words of 2 to 15 letters in total. Switch between them in the finder settings.`,
   },
   {
     q: 'How do I use the finder for Wordle?',
@@ -59,7 +59,7 @@ const faqs = [
   },
   {
     q: 'Is the word finder free?',
-    a: 'Yes — completely free, with no sign-up and no download. The site is supported by a small amount of advertising.',
+    a: 'Yes. It is completely free, with no sign-up and no download. The site is supported by a small amount of advertising.',
   },
 ];
 ---
@@ -74,7 +74,7 @@ const faqs = [
       Find the word you need
     </h1>
     <p class="mx-auto mt-6 max-w-2xl text-lg">
-      A free word finder with every 2-to-15-letter word in the tournament dictionaries — sorted by
+      A free word finder with every 2-to-15-letter word in the tournament dictionaries, sorted by
       how common each word is, so the answer you need sits near the top.
     </p>
   </section>
@@ -93,12 +93,22 @@ const faqs = [
           <div class="mt-3 flex flex-wrap gap-1.5">
             {
               LENGTHS.map((l) => (
-                <label>
-                  <input type="radio" name="len" value={l} checked={l === 5} class="peer sr-only" />
-                  <span class="block min-w-10 cursor-pointer rounded-full border border-blockink/25 px-3 py-1.5 text-center text-sm font-mid transition-colors peer-checked:bg-blockink peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blockink hover:bg-white/40">
+                <span>
+                  <input
+                    type="radio"
+                    name="len"
+                    id={`len-${l}`}
+                    value={l}
+                    checked={l === 5}
+                    class="peer sr-only"
+                  />
+                  <label
+                    for={`len-${l}`}
+                    class="block min-w-10 cursor-pointer rounded-full border border-blockink/25 px-3 py-1.5 text-center text-sm font-mid transition-colors peer-checked:bg-blockink peer-checked:text-canvas peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blockink hover:bg-canvas/40"
+                  >
                     {l}
-                  </span>
-                </label>
+                  </label>
+                </span>
               ))
             }
           </div>
@@ -108,7 +118,7 @@ const faqs = [
       <fieldset class="mt-7">
         <legend class="flex items-center gap-2 font-monoui text-xs uppercase tracking-eyebrow">
           <span class="size-2.5 rounded-full bg-success" aria-hidden="true"></span>
-          Correct letters in position — green
+          Correct letters in position (green)
         </legend>
         <div id="positions" class="mt-3 flex flex-wrap gap-1.5">
           {
@@ -123,7 +133,7 @@ const faqs = [
                 autocapitalize="characters"
                 spellcheck="false"
                 class:list={[
-                  'h-12 w-11 rounded-md border border-blockink/25 bg-white/60 text-center text-lg font-snug uppercase text-blockink transition-colors focus:border-blockink focus:outline-none',
+                  'h-12 w-11 rounded-md border border-blockink/25 bg-canvas/70 text-center text-lg font-snug uppercase text-ink transition-colors focus:border-blockink focus:outline-none',
                   p > 5 && 'hidden',
                 ]}
                 disabled={p > 5}
@@ -137,7 +147,7 @@ const faqs = [
         <div>
           <label for="contains" class="flex items-center gap-2 font-monoui text-xs uppercase tracking-eyebrow">
             <span class="size-2.5 rounded-full bg-wordle-yellow" aria-hidden="true"></span>
-            Contains these letters — yellow
+            Contains these letters (yellow)
           </label>
           <input
             id="contains"
@@ -147,13 +157,13 @@ const faqs = [
             autocomplete="off"
             autocapitalize="characters"
             spellcheck="false"
-            class="mt-2 h-12 w-full rounded-md border border-blockink/25 bg-white/60 px-3.5 text-lg uppercase text-blockink transition-colors placeholder:normal-case placeholder:text-blockink/50 focus:border-blockink focus:outline-none"
+            class="mt-2 h-12 w-full rounded-md border border-blockink/25 bg-canvas/70 px-3.5 text-lg uppercase text-ink transition-colors placeholder:normal-case placeholder:text-ink/50 focus:border-blockink focus:outline-none"
           />
         </div>
         <div>
           <label for="excludes" class="flex items-center gap-2 font-monoui text-xs uppercase tracking-eyebrow">
             <span class="size-2.5 rounded-full bg-blockink/30" aria-hidden="true"></span>
-            Exclude these letters — gray
+            Exclude these letters (gray)
           </label>
           <input
             id="excludes"
@@ -163,18 +173,18 @@ const faqs = [
             autocomplete="off"
             autocapitalize="characters"
             spellcheck="false"
-            class="mt-2 h-12 w-full rounded-md border border-blockink/25 bg-white/60 px-3.5 text-lg uppercase text-blockink transition-colors placeholder:normal-case placeholder:text-blockink/50 focus:border-blockink focus:outline-none"
+            class="mt-2 h-12 w-full rounded-md border border-blockink/25 bg-canvas/70 px-3.5 text-lg uppercase text-ink transition-colors placeholder:normal-case placeholder:text-ink/50 focus:border-blockink focus:outline-none"
           />
         </div>
       </div>
 
-      <details id="settings" class="mt-7 rounded-2xl bg-white/50">
+      <details id="settings" class="mt-7 rounded-2xl bg-canvas/50">
         <summary class="flex h-12 cursor-pointer list-none items-center gap-2 rounded-2xl px-4 font-mid marker:hidden [&::-webkit-details-marker]:hidden">
           <svg class="size-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
-          Settings — dictionary, sort &amp; points
+          Settings: dictionary, sort &amp; points
         </summary>
         <div class="grid gap-6 px-4 pb-5 pt-1 sm:grid-cols-3">
           <fieldset>
@@ -188,8 +198,8 @@ const faqs = [
                   ['twl', 'Scrabble US (TWL)'],
                   ['csw', 'Scrabble UK (CSW)'],
                 ].map(([value, label], i) => (
-                  <label class="flex cursor-pointer items-center gap-2.5">
-                    <input type="radio" name="dict" value={value} checked={i === 0} class="size-4 accent-blockink" />
+                  <label for={`dict-${value}`} class="flex cursor-pointer items-center gap-2.5">
+                    <input type="radio" name="dict" id={`dict-${value}`} value={value} checked={i === 0} class="size-4 accent-blockink" />
                     {label}
                   </label>
                 ))
@@ -205,8 +215,8 @@ const faqs = [
                   ['az', 'A to Z'],
                   ['points', 'Highest points'],
                 ].map(([value, label], i) => (
-                  <label class="flex cursor-pointer items-center gap-2.5">
-                    <input type="radio" name="sort" value={value} checked={i === 0} class="size-4 accent-blockink" />
+                  <label for={`sort-${value}`} class="flex cursor-pointer items-center gap-2.5">
+                    <input type="radio" name="sort" id={`sort-${value}`} value={value} checked={i === 0} class="size-4 accent-blockink" />
                     {label}
                   </label>
                 ))
@@ -215,7 +225,7 @@ const faqs = [
           </fieldset>
           <fieldset>
             <legend class="font-monoui text-xs uppercase tracking-eyebrow">Display</legend>
-            <label class="mt-2 flex cursor-pointer items-center gap-2.5 text-base">
+            <label for="show-points" class="mt-2 flex cursor-pointer items-center gap-2.5 text-base">
               <input type="checkbox" id="show-points" checked class="size-4 accent-blockink" />
               Show points on words
             </label>
@@ -229,18 +239,21 @@ const faqs = [
       <div class="mt-6 flex flex-wrap items-center gap-4">
         <button
           type="reset"
-          class="rounded-full bg-blockink px-7 py-2.5 text-base font-mid text-white transition-opacity hover:opacity-85"
+          class="rounded-full bg-blockink px-7 py-2.5 text-base font-mid text-canvas transition-opacity hover:opacity-85"
         >
           Reset
         </button>
         <p id="count" aria-live="polite" class="font-monoui text-xs uppercase tracking-eyebrow tabular-nums">
           Loading word list…
         </p>
+        <p class="ml-auto font-monoui text-xs uppercase tracking-eyebrow max-sm:hidden">
+          Press <kbd class="rounded border border-blockink/25 px-1.5 py-0.5">?</kbd> for shortcuts
+        </p>
       </div>
 
       <noscript>
         <p class="mt-6">
-          The interactive finder needs JavaScript. No problem — browse the
+          The interactive finder needs JavaScript. No problem: browse the
           <a href="/5-letter-words/" class="font-mid underline underline-offset-4">full 5-letter word lists</a>
           instead.
         </p>
@@ -278,7 +291,7 @@ const faqs = [
     <p class="mt-5 max-w-3xl">
       Most word lists are alphabetical, which hides the answer you actually need somewhere in the
       middle of the Cs. Every list on this site is ranked by how often each word appears in a
-      trillion-word corpus of written English. Puzzle answers are almost always everyday words — so
+      trillion-word corpus of written English. Puzzle answers are almost always everyday words, so
       they surface in the first rows, not after three screens of obscure tournament plays.
     </p>
     <h2 class="mt-10 text-2xl font-snug tracking-display text-balance sm:text-3xl">
@@ -287,7 +300,7 @@ const faqs = [
     <p class="mt-5 max-w-3xl">
       Playing Wordle? "Wordle answers" narrows the list to the curated answer pool. Scrabble players
       should match their rulebook: TWL in North America, CSW everywhere else. Words With Friends
-      uses its own list, based on ENABLE. When in doubt, "All dictionaries" searches everything —
+      uses its own list, based on ENABLE. When in doubt, "All dictionaries" searches everything:
       {totalWords} words.
     </p>
   </section>
@@ -296,7 +309,9 @@ const faqs = [
 </BaseLayout>
 
 <script>
-  const MAX_INITIAL = 120;
+  // Small screens get a shorter first page of results to keep the links
+  // and editorial sections within reach; "Show more" covers the rest.
+  const initialCount = () => (matchMedia('(max-width: 640px)').matches ? 40 : 120);
   const PAGE_SIZE = 480;
 
   const FLAGS: Record<string, number> = { wwf: 1, twl: 2, csw: 4, wordle: 8 };
@@ -387,7 +402,7 @@ const faqs = [
       .slice(0, len)
       .map((el) => el.value.toLowerCase().replace(/[^a-z]/g, ''));
     const contains = letters(containsEl.value);
-    // A "gray" letter that is also green/yellow means "no more copies" —
+    // A "gray" letter that is also green/yellow means "no more copies";
     // dropping it entirely is the forgiving interpretation.
     const keep = new Set([...greens.filter(Boolean), ...contains]);
     const excludes = letters(excludesEl.value).filter((c) => !keep.has(c));
@@ -462,9 +477,9 @@ const faqs = [
       results.replaceChildren();
       rendered = 0;
       countEl.textContent = `${matches.length.toLocaleString('en-US')} words match`;
-      renderTiles(MAX_INITIAL);
+      renderTiles(initialCount());
     } catch {
-      countEl.textContent = 'Could not load the word list — check your connection and refresh.';
+      countEl.textContent = 'Could not load the word list. Check your connection and refresh.';
     }
   }
 

@@ -1,9 +1,9 @@
 // Builds the word data for lengths 2–15 from public word lists.
 //
 // Outputs per length N:
-//   src/data/words-N.json — page lists: ENABLE ∪ TWL (US tournament standard),
-//                           sorted most-common-first
-//   src/data/dicts-N.json — solver data: { w: union of all dictionaries,
+//   src/data/words-N.json -- page lists: ENABLE ∪ TWL (US tournament standard),
+//                            sorted most-common-first
+//   src/data/dicts-N.json -- solver data: { w: union of all dictionaries,
 //                           f: bitmask flags } same frequency order
 //
 // Flag bits: 1 = ENABLE/Words With Friends, 2 = Scrabble US (TWL06),
@@ -65,7 +65,7 @@ function toWordSet(raw, { minWords, label }) {
     .filter((w) => /^[a-z]+$/.test(w));
   if (words.length < minWords) {
     console.warn(
-      `WARNING: ${label} parsed only ${words.length} words (expected ≥ ${minWords}) — skipping this dictionary`,
+      `WARNING: ${label} parsed only ${words.length} words (expected ≥ ${minWords}), skipping this dictionary`,
     );
     return null;
   }
@@ -95,7 +95,7 @@ async function main() {
   });
 
   const enable = toWordSet(raw['enable1.txt'], { minWords: 100000, label: 'ENABLE' });
-  if (!enable) throw new Error('ENABLE list failed to parse — aborting');
+  if (!enable) throw new Error('ENABLE list failed to parse, aborting');
   const twl = toWordSet(raw['twl06.txt'], { minWords: 100000, label: 'TWL06' });
   const csw = toWordSet(raw['sowpods.txt'], { minWords: 150000, label: 'SOWPODS' });
   const wordle = toWordSet(raw['wordle-answers.txt'], { minWords: 2000, label: 'Wordle answers' });

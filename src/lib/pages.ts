@@ -63,7 +63,7 @@ function href(section: string, slug?: string): string {
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh'];
 
 /* ------------------------------------------------------------------ */
-/* Copy templates — varied per page via slug hash so phrasing differs  */
+/* Copy templates, varied per page via slug hash so phrasing differs  */
 /* across the site instead of repeating one sentence 2,000 times.      */
 /* ------------------------------------------------------------------ */
 
@@ -88,7 +88,7 @@ function introTemplates(len: WordLength, c: FamilyCopy, words: string[], seed: s
   const games = gamesFor(len);
   const variants: string[][] = [
     [
-      `Looking for ${name}-letter words ${c.phraseLower}? There are ${n} of them in the tournament word lists, and every one is on this page. The most common — ${top3} — sit right at the top.`,
+      `Looking for ${name}-letter words ${c.phraseLower}? There are ${n} of them in the tournament word lists, and every one is on this page. The most common, like ${top3}, sit right at the top.`,
       `Unlike alphabetical lists that bury likely answers in the middle, this list is sorted by how often each word appears in everyday English. Scan the first rows for probable answers; dig deeper for rare, high-scoring plays.`,
     ],
     [
@@ -97,21 +97,21 @@ function introTemplates(len: WordLength, c: FamilyCopy, words: string[], seed: s
     ],
     [
       `Our word finder knows ${n} ${name}-letter words ${c.phraseLower}. Common picks such as ${top3} lead the list, which makes it faster to spot the word your puzzle is hiding.`,
-      `Words are ordered by usage frequency in a trillion-word English corpus — the closest thing to "most likely answer first" that a word list can offer.`,
+      `Words are ordered by usage frequency in a trillion-word English corpus, which is the closest thing to "most likely answer first" that a word list can offer.`,
     ],
   ];
   return pick(variants, seed);
 }
 
 const TIPS_WORDLE = [
-  'Solving Wordle? Answers are almost always everyday words, so start from the top of this list — the frequency sort puts likely answers where you can see them.',
+  'Solving Wordle? Answers are almost always everyday words, so start from the top of this list; the frequency sort puts likely answers where you can see them.',
   'Stuck on yellows? A repeated letter is often the trick. Check the double-letter list, then come back and scan the common band again.',
-  'If you still have several candidates, prefer words with distinct, common letters — each guess then eliminates more of the alphabet.',
+  'If you still have several candidates, prefer words with distinct, common letters; each guess then eliminates more of the alphabet.',
 ];
 const TIPS_GENERAL = [
   'For Scrabble or Words With Friends, scroll to the bottom: the rare words live there, and rare letters usually mean bigger scores.',
   'Use the sort control above the list to flip between common-first, alphabetical, and highest-scoring order.',
-  'Narrow things down faster with the word finder on the home page — lock in the letters you know and it filters the entire dictionary in an instant.',
+  'Narrow things down faster with the word finder on the home page: lock in the letters you know and it filters the entire dictionary in an instant.',
 ];
 
 function pickTip(len: WordLength, seed: string): string {
@@ -131,13 +131,13 @@ function faqsFor(len: WordLength, c: FamilyCopy, words: string[], seed: string):
     },
     {
       q: 'Why are the words in this order?',
-      a: 'Words are ranked by how often they appear in a trillion-word corpus of written English — most common first. That surfaces likely puzzle answers instead of hiding them mid-alphabet. Use the sort control to switch to alphabetical or points order.',
+      a: 'Words are ranked by how often they appear in a trillion-word corpus of written English, most common first. That surfaces likely puzzle answers instead of hiding them mid-alphabet. Use the sort control to switch to alphabetical or points order.',
     },
   ];
   if (len === 5) {
     validity.push({
       q: 'Are these valid Wordle words?',
-      a: 'Nearly all of them. Wordle draws its answers from a curated list of common five-letter words, but it accepts almost any dictionary word as a guess — including the words on this page.',
+      a: 'Nearly all of them. Wordle draws its answers from a curated list of common five-letter words, but it accepts almost any dictionary word as a guess, including the words on this page.',
     });
   }
   return [
@@ -159,7 +159,7 @@ function descriptionFor(len: WordLength, c: FamilyCopy, words: string[], seed: s
   const games = gamesFor(len);
   const variants = [
     `All ${n} ${name}-letter words ${c.phraseLower}, sorted with the most common first. Free word list and finder for ${games}.`,
-    `Browse ${n} ${name}-letter words ${c.phraseLower} — common words first, rare ones last. Perfect for cracking today's puzzle or planning a high-scoring play.`,
+    `Browse ${n} ${name}-letter words ${c.phraseLower}: common words first, rare ones last. Perfect for cracking today's puzzle or planning a high-scoring play.`,
     `Complete list of ${n} ${name}-letter words ${c.phraseLower}, ranked by everyday usage, with Scrabble points for every word. Free, no sign-up.`,
   ];
   return pick(variants, seed);
@@ -184,7 +184,7 @@ function buildPage(
     section,
     slug,
     h1,
-    title: overrides.title ?? `${h1} — ${formatCount(words.length)} Words`,
+    title: overrides.title ?? `${h1} (${formatCount(words.length)} Words)`,
     description: overrides.description ?? descriptionFor(len, copy, words, seed),
     intro: overrides.intro ?? introTemplates(len, copy, words, seed),
     tip: pickTip(len, seed + 't'),
@@ -531,7 +531,7 @@ function buildAllPages(len: WordLength): PageDef[] {
       copy: { phrase: 'Without Vowels', phraseLower: 'with no vowels (A, E, I, O, U)' },
       filter: (w) => ![...w].some((ch) => VOWELS.has(ch)),
       intro: [
-        'No A, E, I, O, or U — these five-letter words survive on consonants alone, usually with Y or W doing a vowel’s job. They are rare, surprising, and brutal to find in a puzzle unless you know they exist.',
+        'No A, E, I, O, or U: these five-letter words survive on consonants alone, usually with Y or W doing a vowel’s job. They are rare, surprising, and brutal to find in a puzzle unless you know they exist.',
         'Most of them lean on Y (as in LYMPH or CRYPT) or on Welsh borrowings like CRWTH. They are all valid tournament words, and they make devastating Scrabble plays when your rack is a wall of consonants.',
       ],
     },
@@ -541,7 +541,7 @@ function buildAllPages(len: WordLength): PageDef[] {
       copy: { phrase: 'With No Repeated Letters', phraseLower: 'with five different letters' },
       filter: (w) => new Set(w).size === 5,
       intro: [
-        'Every word here uses five different letters — the property that makes a perfect Wordle opener. Each guess tests five distinct letters of the alphabet instead of wasting a slot on a duplicate.',
+        'Every word here uses five different letters, the property that makes a perfect Wordle opener. Each guess tests five distinct letters of the alphabet instead of wasting a slot on a duplicate.',
         'The list is sorted by frequency, so the early entries are both common and information-rich. Pick two of them with no overlapping letters and you have tested ten letters in two moves.',
       ],
     },
@@ -554,7 +554,7 @@ function buildAllPages(len: WordLength): PageDef[] {
         return false;
       },
       intro: [
-        'These five-letter words contain the same letter twice in a row — LL, SS, EE, OO and friends. Puzzle setters love them because most players are slow to consider repeats.',
+        'These five-letter words contain the same letter twice in a row: LL, SS, EE, OO and friends. Puzzle setters love them because most players are slow to consider repeats.',
         'If your yellow letters keep refusing every position you try, a double letter is often the trick. Scan the common words below before you burn another guess.',
       ],
     },
@@ -574,7 +574,7 @@ function buildAllPages(len: WordLength): PageDef[] {
       copy: { phrase: 'With Q but No U', phraseLower: 'with a Q but no U' },
       filter: (w) => w.includes('q') && !w.includes('u'),
       intro: [
-        'The letter Q almost always drags a U along — except in these words. Most are borrowings: QOPH from Hebrew, QANAT from Persian, TRANQ from street English.',
+        'The letter Q almost always drags a U along, except in these words. Most are borrowings: QOPH from Hebrew, QANAT from Persian, TRANQ from street English.',
         'They are lifesavers in Scrabble when the U never arrives, and a fun bit of trivia everywhere else. All entries are valid tournament words.',
       ],
     },
@@ -662,7 +662,7 @@ export function hubFor(len: WordLength): HubData {
     section,
     len,
     h1: `${Name} Word Lists`,
-    title: `${Name} Words — Lists by Starting Letter, Ending & Pattern`,
+    title: `${Name} Words: Lists by Starting Letter, Ending & Pattern`,
     description: `Every ${LENGTH_NAMES[len]}-letter word list in one place: ${count} words organised by starting letter, ending letter, and pattern, with Scrabble points. Free word finder included.`,
     wordCount: WORD_LISTS[len].length,
     groups,

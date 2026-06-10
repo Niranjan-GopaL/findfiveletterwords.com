@@ -23,7 +23,7 @@ const websiteJsonLd = {
   name: 'Find Five Letter Words',
   url: Astro.site?.href,
   description:
-    'Free word finder and word lists for Wordle, Scrabble, and Words With Friends — every 2-to-15-letter word, sorted by frequency so common words come first.',
+    'Free word finder and word lists for Wordle, Scrabble, and Words With Friends: every 2-to-15-letter word, sorted by frequency so common words come first.',
 };
 
 const navLinks = [
@@ -34,7 +34,22 @@ const navLinks = [
 ];
 
 const totalWords = formatCount(LENGTHS.reduce((sum, l) => sum + WORD_LISTS[l].length, 0));
-const marquee = `${totalWords} words · 2 to 15 letters · sorted by frequency · Scrabble points on every word · free forever`;
+const marquee = `${totalWords} words · 2 to 15 letters · sorted by frequency · Scrabble points on every word · free forever · `;
+
+const fontSizes = [
+  { value: '', label: 'Default' },
+  { value: 'lg', label: 'Large' },
+  { value: 'xl', label: 'Larger' },
+  { value: 'xxl', label: 'Largest' },
+];
+
+const shortcuts = [
+  { keys: ['/'], action: 'Focus the finder or list filter' },
+  { keys: ['Ctrl', 'F'], action: 'On word-list pages: our filter (press again for the browser find)' },
+  { keys: ['T'], action: 'Toggle dark mode' },
+  { keys: ['?'], action: 'Show this help' },
+  { keys: ['Esc'], action: 'Close dialogs' },
+];
 
 const year = new Date().getFullYear();
 ---
@@ -59,13 +74,16 @@ const year = new Date().getFullYear();
     <meta name="twitter:card" content="summary" />
     <script is:inline>
       (function () {
-        let theme = 'light';
         try {
-          theme =
-            localStorage.getItem('fflw-theme') ??
+          var theme =
+            localStorage.getItem('fflw-theme') ||
             (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        } catch (e) {}
-        document.documentElement.dataset.theme = theme;
+          document.documentElement.dataset.theme = theme;
+          var size = localStorage.getItem('fflw-fontsize');
+          if (size) document.documentElement.dataset.fontsize = size;
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
       })();
     </script>
     {home && <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />}
@@ -97,6 +115,29 @@ const year = new Date().getFullYear();
           </ul>
         </nav>
         <div class="flex items-center gap-2">
+          <details id="fontsize-menu" class="relative">
+            <summary
+              class="flex size-10 cursor-pointer list-none items-center justify-center rounded-full bg-soft text-sm font-snug transition-colors hover:bg-hairline-soft [&::-webkit-details-marker]:hidden"
+              aria-label="Text size"
+            >
+              Aa
+            </summary>
+            <div class="absolute right-0 top-12 z-50 w-40 rounded-2xl border border-hairline bg-canvas p-1.5">
+              <p class="px-2.5 pb-1 pt-1.5 font-monoui text-xs uppercase tracking-eyebrow">Text size</p>
+              {
+                fontSizes.map((s) => (
+                  <button
+                    type="button"
+                    data-size={s.value}
+                    class="fontsize-option block w-full rounded-lg px-2.5 py-2 text-left text-base font-mid transition-colors hover:bg-soft aria-pressed:bg-soft"
+                    aria-pressed={s.value === '' ? 'true' : 'false'}
+                  >
+                    {s.label}
+                  </button>
+                ))
+              }
+            </div>
+          </details>
           <button
             id="theme-toggle"
             type="button"
@@ -141,8 +182,9 @@ const year = new Date().getFullYear();
     </header>
 
     <div class="flex h-9 items-center overflow-hidden bg-navy" aria-hidden="true">
-      <p class="whitespace-nowrap px-4 font-monoui text-xs uppercase tracking-eyebrow text-white">
-        {marquee}
+      <p class="marquee-track font-monoui text-xs uppercase tracking-eyebrow text-white motion-reduce:whitespace-normal motion-reduce:px-4">
+        <span class="whitespace-nowrap motion-reduce:whitespace-normal motion-reduce:truncate">{marquee}</span>
+        <span class="whitespace-nowrap motion-reduce:hidden">{marquee}</span>
       </p>
     </div>
 
@@ -189,10 +231,44 @@ const year = new Date().getFullYear();
           </div>
         </div>
         <p class="mt-12 border-t border-hairline-soft pt-6 font-monoui text-xs uppercase tracking-eyebrow">
-          © {year} findfiveletterwords.com · Not affiliated with the New York Times, Wordle, or Scrabble.
+          © {year} findfiveletterwords.com · Not affiliated with the New York Times, Wordle, or Scrabble
+          · Press <kbd class="rounded border border-hairline bg-soft px-1.5 py-0.5">?</kbd> for keyboard shortcuts
         </p>
       </div>
     </footer>
+
+    <dialog
+      id="kbd-help"
+      class="m-auto w-[min(92vw,28rem)] rounded-3xl border border-hairline bg-canvas p-6 text-ink backdrop:bg-black/50"
+    >
+      <div class="flex items-center justify-between gap-4">
+        <h2 class="text-xl font-snug tracking-display">Keyboard shortcuts</h2>
+        <button
+          id="kbd-close"
+          type="button"
+          aria-label="Close"
+          class="flex size-9 items-center justify-center rounded-full bg-soft transition-colors hover:bg-hairline-soft"
+        >
+          <svg class="size-4" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M6 6l12 12M18 6L6 18"></path>
+          </svg>
+        </button>
+      </div>
+      <dl class="mt-5 space-y-4">
+        {
+          shortcuts.map((s) => (
+            <div class="flex items-start justify-between gap-6">
+              <dt class="text-base">{s.action}</dt>
+              <dd class="flex shrink-0 gap-1">
+                {s.keys.map((k) => (
+                  <kbd class="rounded-md border border-hairline bg-soft px-2 py-1 font-monoui text-xs">{k}</kbd>
+                ))}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </dialog>
 
     <style>
       html[data-theme='dark'] .icon-sun {
@@ -207,12 +283,13 @@ const year = new Date().getFullYear();
     </style>
 
     <script>
+      /* Theme toggle */
       const themeBtn = document.getElementById('theme-toggle');
       const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
       function syncThemeMeta() {
         if (themeMeta)
           themeMeta.content =
-            document.documentElement.dataset.theme === 'dark' ? '#121214' : '#ffffff';
+            document.documentElement.dataset.theme === 'dark' ? '#141417' : '#ffffff';
       }
       syncThemeMeta();
       themeBtn?.addEventListener('click', () => {
@@ -226,6 +303,38 @@ const year = new Date().getFullYear();
         syncThemeMeta();
       });
 
+      /* Text size */
+      const sizeMenu = document.getElementById('fontsize-menu') as HTMLDetailsElement | null;
+      const sizeButtons = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('.fontsize-option'),
+      );
+      function syncSizeButtons() {
+        const current = document.documentElement.dataset.fontsize ?? '';
+        sizeButtons.forEach((b) =>
+          b.setAttribute('aria-pressed', String((b.dataset.size ?? '') === current)),
+        );
+      }
+      syncSizeButtons();
+      sizeButtons.forEach((b) =>
+        b.addEventListener('click', () => {
+          const size = b.dataset.size ?? '';
+          if (size) document.documentElement.dataset.fontsize = size;
+          else delete document.documentElement.dataset.fontsize;
+          try {
+            if (size) localStorage.setItem('fflw-fontsize', size);
+            else localStorage.removeItem('fflw-fontsize');
+          } catch {
+            /* private mode */
+          }
+          syncSizeButtons();
+          if (sizeMenu) sizeMenu.open = false;
+        }),
+      );
+      document.addEventListener('click', (e) => {
+        if (sizeMenu?.open && !sizeMenu.contains(e.target as Node)) sizeMenu.open = false;
+      });
+
+      /* Mobile menu */
       const menuBtn = document.getElementById('menu-toggle');
       const menu = document.getElementById('mobile-menu');
       menuBtn?.addEventListener('click', () => {
@@ -233,6 +342,50 @@ const year = new Date().getFullYear();
         menu!.hidden = !open;
         menuBtn.setAttribute('aria-expanded', String(open));
         menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      });
+
+      /* Keyboard shortcuts */
+      const kbdDialog = document.getElementById('kbd-help') as HTMLDialogElement | null;
+      document.getElementById('kbd-close')?.addEventListener('click', () => kbdDialog?.close());
+      kbdDialog?.addEventListener('click', (e) => {
+        if (e.target === kbdDialog) kbdDialog.close();
+      });
+
+      function findTarget(): HTMLInputElement | null {
+        return (document.getElementById('wg-filter') ??
+          document.getElementById('pos-1')) as HTMLInputElement | null;
+      }
+
+      document.addEventListener('keydown', (e) => {
+        const t = e.target as HTMLElement;
+        const typing =
+          t &&
+          (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+
+        // Custom Ctrl/Cmd+F: jump to our filter; press again for the browser find.
+        if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'f') {
+          const el = findTarget();
+          if (el && document.activeElement !== el) {
+            e.preventDefault();
+            el.focus();
+            el.select?.();
+          }
+          return;
+        }
+        if (e.ctrlKey || e.metaKey || e.altKey || typing) return;
+
+        if (e.key === '?') {
+          e.preventDefault();
+          kbdDialog?.showModal();
+        } else if (e.key === '/') {
+          const el = findTarget();
+          if (el) {
+            e.preventDefault();
+            el.focus();
+          }
+        } else if (e.key === 't' || e.key === 'T') {
+          themeBtn?.click();
+        }
       });
     </script>
   </body>
